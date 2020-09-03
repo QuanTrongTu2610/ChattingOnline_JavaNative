@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ChattingOnlineApplication</string>
+
+    //RegisterView
+    <string name="tvRegisterInstruction">Please confirm your country code and enter your phone number</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+</resources>

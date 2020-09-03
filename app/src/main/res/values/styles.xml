@@ -1,0 +1,10 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/clBlack</item>
+        <item name="colorPrimaryDark">@color/clLightGray</item>
+        <item name="colorAccent">@color/clLightBlue</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

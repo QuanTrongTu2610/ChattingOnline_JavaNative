@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+
+    //covert couple 1
+    //blue as main color
+    <color name="clLightBlue">#4A91CD</color>
+    <color name="clPrimaryDarkBlue">#222E3A</color>
+
+    //covert couple 2
+    <color name="clWhite">#FFFFFF</color>
+    <color name="clSecondaryDarkBlue">#1C2732</color>
+
+    //basic color
+    <color name="clBlack">#000000</color>
+    <color name="clGray">#808080</color>
+    <color name="clLightGray">#e0e0e0</color>
+</resources>
