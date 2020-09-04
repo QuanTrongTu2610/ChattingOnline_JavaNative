@@ -7,4 +7,10 @@
         <item name="colorAccent">@color/clLightBlue</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:background">@color/clGray</item>
+    </style>
 </resources>
