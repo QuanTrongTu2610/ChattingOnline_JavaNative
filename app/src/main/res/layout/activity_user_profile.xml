@@ -16,6 +16,7 @@
             android:layout_height="match_parent"
             android:background="@color/clLightBlue"
             android:fitsSystemWindows="true"
+            app:contentScrim="@color/clWhite"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
@@ -25,11 +26,16 @@
                 android:src="@drawable/catavatar"
                 app:layout_collapseMode="parallax"></ImageView>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/title_background"></View>
+
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolBarUserProfile"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/custom_tool_bar_background"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
