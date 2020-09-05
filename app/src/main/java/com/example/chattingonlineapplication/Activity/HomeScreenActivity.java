@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -31,6 +34,9 @@ import java.util.ArrayList;
 
 public class HomeScreenActivity extends AppCompatActivity {
 
+
+    private View viewHeader;
+    private ImageView imgUserAvatar;
     private LinearLayoutManager linearLayoutManager;
     private ListUserMessagesAdapter listUserMessagesAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
@@ -54,6 +60,15 @@ public class HomeScreenActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_black_24);
 
+        if (imgUserAvatar != null) {
+            imgUserAvatar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(HomeScreenActivity.this, UserProfileActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
 
         //
         linearLayoutManager = new LinearLayoutManager(this);
@@ -84,6 +99,9 @@ public class HomeScreenActivity extends AppCompatActivity {
         recyclerUser = findViewById(R.id.recyclerUser);
         lstUserMessage = new ArrayList<>();
         searchViewLayoutUserMessage = findViewById(R.id.searchViewLayoutUserMessage);
+
+        viewHeader = navigationView.getHeaderView(0);
+        imgUserAvatar = viewHeader.findViewById(R.id.imgUserAvatar);
     }
 
     @Override
@@ -119,4 +137,5 @@ public class HomeScreenActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

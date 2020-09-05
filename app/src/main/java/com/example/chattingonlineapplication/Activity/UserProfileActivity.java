@@ -9,9 +9,13 @@ import com.example.chattingonlineapplication.Adapter.ListSettingOptionsUserProfi
 import com.example.chattingonlineapplication.Models.SettingUserProfileItemModel;
 import com.example.chattingonlineapplication.R;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 
@@ -26,6 +30,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private AppBarLayout appBarLayout;
     private Toolbar toolBarUserProfile;
     private RecyclerView recyclerProfileUser;
+    private CollapsingToolbarLayout collapsingToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,8 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
         reflection();
         bindingData();
+
+        collapsingToolBar.setTitle("Quan Trong Tu");
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -44,11 +51,17 @@ public class UserProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolBarUserProfile);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        toolBarUserProfile.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         ListSettingOptionsUserProfileAdapter adapter = new ListSettingOptionsUserProfileAdapter(this, lst);
         recyclerProfileUser.setLayoutManager(linearLayoutManager);
         recyclerProfileUser.setAdapter(adapter);
-
     }
 
     private void bindingData() {
@@ -65,6 +78,14 @@ public class UserProfileActivity extends AppCompatActivity {
         toolBarUserProfile = findViewById(R.id.toolBarUserProfile);
         recyclerProfileUser = findViewById(R.id.recyclerProfileUser);
         appBarLayout = findViewById(R.id.app_bar);
+        collapsingToolBar = findViewById(R.id.collapsingToolBar);
         lst = new ArrayList<>();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.user_profile_menu, menu);
+        return true;
     }
 }
