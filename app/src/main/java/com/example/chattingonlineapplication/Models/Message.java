@@ -1,17 +1,10 @@
 package com.example.chattingonlineapplication.Models;
 
 public class Message {
-    private String text;
-
-    public Message(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
+    private int messageToUserId;
+    private int messageFromUserId;
+    private String messageContent;
+    private String messageDateCreated;
+    private boolean messageIsSeen;
+    private boolean messageIsSent;
 }

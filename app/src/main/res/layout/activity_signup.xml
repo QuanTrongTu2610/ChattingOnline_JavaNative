@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/clWhite"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     tools:context=".Activity.SignUpActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:theme="@style/AppThemeLight"
         android:id="@+id/toolbarRegister"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/custom_tool_bar_background"
+        android:theme="@style/AppThemeLight"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -51,7 +52,7 @@
             android:inputType="number"
             android:maxLength="5"
             android:maxLines="1"
-            android:text="+1"></EditText>
+            android:text="+84"></EditText>
 
         <EditText
             android:id="@+id/autvPhoneNumber"
@@ -62,7 +63,7 @@
             android:layout_weight="10"
             android:inputType="number"
             android:maxLines="1"
-            android:text="555 521 5554"></EditText>
+            android:text="832 677 917"></EditText>
     </LinearLayout>
 
     <TextView
@@ -75,14 +76,49 @@
         android:textSize="14dp"
         app:layout_constraintTop_toBottomOf="@+id/containerNumber"></TextView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnRegister"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewBtnVerification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
-        android:background="@color/clLightBlue"
-        android:src="@drawable/ic_baseline_arrow_forward_24"
+        app:cardCornerRadius="90dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"></com.google.android.material.floatingactionbutton.FloatingActionButton>
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayoutBtnVerification"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/custom_floating_button">
+
+            <ProgressBar
+                android:id="@+id/progressBarBtnVerification"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:indeterminateTint="@color/clWhite"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"></ProgressBar>
+
+            <ImageView
+                android:id="@+id/imgBtnVerification"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/ic_baseline_arrow_forward_24"
+                android:text="Sign in"
+                android:textAlignment="center"
+                android:textColor="@color/clWhite"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"></ImageView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

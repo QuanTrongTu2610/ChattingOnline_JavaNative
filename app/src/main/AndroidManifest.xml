@@ -13,16 +13,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activity.UserProfileActivity"></activity>
+        <activity android:name=".Activity.ChattingScreenActivity"></activity>
+        <activity android:name=".Activity.UserProfileActivity" />
         <activity android:name=".Activity.VerifyAuthCodeActivity" />
-        <activity android:name=".Activity.HomeScreenActivity">
+        <activity android:name=".Activity.HomeScreenActivity" />
+        <activity android:name=".Activity.LauncherActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity.LauncherActivity"></activity>
-        <activity android:name=".Activity.CountryListActivity"></activity>
+        <activity android:name=".Activity.CountryListActivity" />
         <activity
             android:name=".Activity.SignUpActivity"
             android:windowSoftInputMode="adjustResize" />

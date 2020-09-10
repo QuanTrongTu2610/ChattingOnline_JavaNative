@@ -3,32 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
+    android:background="@color/clWhite"
+    android:gravity="center"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/imgSignUp"
         android:layout_width="180dp"
         android:layout_height="180dp"
-        android:layout_marginTop="70dp"
         android:src="@drawable/verification"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvSignUpDescription" />
 
     <TextView
-        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="Enter code"
         android:textAlignment="center"
         android:textColor="@color/clBlack"
         android:textSize="18sp"></TextView>
 
     <TextView
-        android:padding="10dp"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:text="We've sent an SMS with an activation code to your phone"
         android:textAlignment="center"
         android:textColor="@color/clGray"
@@ -36,11 +36,52 @@
 
 
     <EditText
-        android:maxLines="1"
-        android:layout_marginTop="10dp"
+        android:id="@+id/editTextOTP"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="@drawable/custom_verification_edittext"
         android:backgroundTint="@null"
-        android:padding="10dp"></EditText>
+        android:maxLines="1"
+        android:padding="10dp"
+        android:textAlignment="center"></EditText>
+
+<!--    <androidx.cardview.widget.CardView-->
+    <!--        android:id="@+id/cardView"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="30dp"-->
+    <!--        app:cardCornerRadius="10dp">-->
+
+    <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--            android:id="@+id/constraintLayout"-->
+    <!--            android:layout_width="170dp"-->
+    <!--            android:layout_height="40dp"-->
+    <!--            android:background="@drawable/custom_signin_button">-->
+
+    <!--            <ProgressBar-->
+    <!--                android:id="@+id/progressBar"-->
+    <!--                android:layout_width="25dp"-->
+    <!--                android:layout_height="25dp"-->
+    <!--                android:layout_marginLeft="20dp"-->
+    <!--                android:indeterminateTint="@color/clWhite"-->
+    <!--                android:visibility="gone"-->
+    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--                app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent"></ProgressBar>-->
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/textView"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:text="Sign in"-->
+    <!--                android:textAlignment="center"-->
+    <!--                android:textColor="@color/clWhite"-->
+    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--                app:layout_constraintLeft_toLeftOf="@+id/progressBar"-->
+    <!--                app:layout_constraintRight_toRightOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent"></TextView>-->
+    <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+    <!--    </androidx.cardview.widget.CardView>-->
+
 </LinearLayout>

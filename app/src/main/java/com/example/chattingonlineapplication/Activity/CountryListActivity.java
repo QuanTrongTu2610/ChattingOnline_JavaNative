@@ -45,7 +45,7 @@ public class CountryListActivity extends AppCompatActivity {
         }
 
         setSupportActionBar(toolbarCountryList);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true );
 
         toolbarCountryList.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

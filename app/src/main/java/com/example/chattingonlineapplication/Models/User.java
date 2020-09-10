@@ -4,29 +4,29 @@ import java.util.List;
 
 public class User {
     private int userId;
+    private String userFirstName;
+    private String userLastName;
     private String userName;
-    private String userPassword;
     private String userPhoneNumber;
     private String userAvatarUrl;
     private String userBio;
     private List<User> userFriends;
+    private String userDateUpdated;
+    private String userDateCreated;
+    private boolean userIsActive;
 
-    public User(int userId, String userName, String userPassword, String userPhoneNumber, String userAvatarUrl, String userBio, List<User> userFriends) {
+    public User(int userId, String userFirstName, String userLastName, String userName, String userPhoneNumber, String userAvatarUrl, String userBio, List<User> userFriends, String userDateUpdated, String userDateCreated, boolean userIsActive) {
         this.userId = userId;
+        this.userFirstName = userFirstName;
+        this.userLastName = userLastName;
         this.userName = userName;
-        this.userPassword = userPassword;
         this.userPhoneNumber = userPhoneNumber;
         this.userAvatarUrl = userAvatarUrl;
         this.userBio = userBio;
         this.userFriends = userFriends;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+        this.userDateUpdated = userDateUpdated;
+        this.userDateCreated = userDateCreated;
+        this.userIsActive = userIsActive;
     }
 
     public int getUserId() {
@@ -37,12 +37,28 @@ public class User {
         this.userId = userId;
     }
 
-    public String getUserPassword() {
-        return userPassword;
+    public String getUserFirstName() {
+        return userFirstName;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getUserPhoneNumber() {
@@ -76,4 +92,29 @@ public class User {
     public void setUserFriends(List<User> userFriends) {
         this.userFriends = userFriends;
     }
+
+    public String getUserDateUpdated() {
+        return userDateUpdated;
+    }
+
+    public void setUserDateUpdated(String userDateUpdated) {
+        this.userDateUpdated = userDateUpdated;
+    }
+
+    public boolean isUserIsActive() {
+        return userIsActive;
+    }
+
+    public void setUserIsActive(boolean userIsActive) {
+        this.userIsActive = userIsActive;
+    }
+
+    public String getUserDateCreated() {
+        return userDateCreated;
+    }
+
+    public void setUserDateCreated(String userDateCreated) {
+        this.userDateCreated = userDateCreated;
+    }
 }
+

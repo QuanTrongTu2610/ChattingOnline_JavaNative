@@ -1,7 +1,6 @@
 package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +12,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.chattingonlineapplication.Models.UserMessage;
+import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ListUserMessagesAdapter extends RecyclerView.Adapter implements Filterable {
+public class ListConversationsAdapter extends RecyclerView.Adapter implements Filterable {
 
-    private ArrayList<UserMessage> lstUserMessageClone;
-    private ArrayList<UserMessage> lstUserMessage;
+    private ArrayList<Conversation> lstUserMessageClone;
+    private ArrayList<Conversation> lstUserMessage;
     private Context context;
 
-    public ListUserMessagesAdapter(Context context, ArrayList<UserMessage> lstUserMessage) {
+    public ListConversationsAdapter(Context context, ArrayList<Conversation> lstUserMessage) {
         this.context = context;
         this.lstUserMessage = lstUserMessage;
         this.lstUserMessageClone = new ArrayList<>(lstUserMessage);
@@ -44,16 +42,16 @@ public class ListUserMessagesAdapter extends RecyclerView.Adapter implements Fil
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        UserMessage userMessage = lstUserMessage.get(position);
+        Conversation item = lstUserMessage.get(position);
         ViewHolder viewHolder = (ViewHolder) holder;
-        if (userMessage.getUser().getUserAvatarUrl().trim().isEmpty() || userMessage.getUser().getUserAvatarUrl() == null) {
-            //nothing
-        } else {
-            Picasso.get().load(userMessage.getUser().getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-        }
-        viewHolder.tvUserName.setText(userMessage.getUser().getUserName());
-        viewHolder.tvUserTimeSending.setText(userMessage.getUserTimeSend());
-        viewHolder.tvUserCurrentMessage.setText(userMessage.getUserCurrentMessage().getText());
+
+
+//        Picasso.get().load(userMessage.getUser().getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+
+        viewHolder.imgUserAvatar.setImageResource(R.drawable.ava);
+        viewHolder.tvUserName.setText(item.getcReceiverName());
+        viewHolder.tvUserTimeSending.setText(item.getcDateSending());
+        viewHolder.tvUserCurrentMessage.setText(item.getcLastMessage().trim());
     }
 
     @Override
@@ -66,13 +64,13 @@ public class ListUserMessagesAdapter extends RecyclerView.Adapter implements Fil
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                ArrayList<UserMessage> filteredList = new ArrayList<>();
+                ArrayList<Conversation> filteredList = new ArrayList<>();
                 if (charSequence == null || charSequence.length() == 0) {
                     filteredList.addAll(lstUserMessageClone);
                 } else {
-                    String filter = charSequence.toString().toLowerCase().trim().replace(" ", "");
-                    for (UserMessage item : lstUserMessageClone) {
-                        if (item.getUser().getUserName().toLowerCase().contains(filter)) {
+                    String filter = charSequence.toString().toLowerCase().trim();
+                    for (Conversation item : lstUserMessageClone) {
+                        if (item.getcReceiverName().toLowerCase().trim().contains(filter)) {
                             filteredList.add(item);
                         }
                     }
@@ -85,7 +83,7 @@ public class ListUserMessagesAdapter extends RecyclerView.Adapter implements Fil
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 lstUserMessage.clear();
-                lstUserMessage.addAll((ArrayList<UserMessage>) filterResults.values);
+                lstUserMessage.addAll((ArrayList<Conversation>) filterResults.values);
                 notifyDataSetChanged();
             }
         };

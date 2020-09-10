@@ -10,22 +10,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SearchView;
-import android.widget.Toast;
 
-import com.example.chattingonlineapplication.Adapter.ListUserMessagesAdapter;
-import com.example.chattingonlineapplication.Models.Message;
-import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Models.UserMessage;
+import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
+import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.R;
 import com.google.android.material.navigation.NavigationView;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -38,9 +31,9 @@ public class HomeScreenActivity extends AppCompatActivity {
     private View viewHeader;
     private ImageView imgUserAvatar;
     private LinearLayoutManager linearLayoutManager;
-    private ListUserMessagesAdapter listUserMessagesAdapter;
+    private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
-    private ArrayList<UserMessage> lstUserMessage;
+    private ArrayList<Conversation> lstUserMessage;
 
     private RecyclerView recyclerUser;
     private Toolbar toolbarHomeScreen;
@@ -72,23 +65,28 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         //
         linearLayoutManager = new LinearLayoutManager(this);
-        listUserMessagesAdapter = new ListUserMessagesAdapter(this, lstUserMessage);
+        listConversationsAdapter = new ListConversationsAdapter(this, lstUserMessage);
         recyclerUser.setLayoutManager(linearLayoutManager);
-        recyclerUser.setAdapter(listUserMessagesAdapter);
+        recyclerUser.setAdapter(listConversationsAdapter);
 
     }
 
     private void bindingData() {
-        lstUserMessage.add(new UserMessage(new User(1, "Quan Trong Tu", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Pham Thi Ha", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Nguyen Anh Dat", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Le Duc Lam", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Nguyen Huu Hoang", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Truong Tuan Truong", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Nguyen Anh Dung", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Trieu Thi Van", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Dam Sy Hoang", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
-        lstUserMessage.add(new UserMessage(new User(1, "Trinh Ngoc Son", "123", "0832677917", "", "Hello", null), new Message("Hello1"), new Message("Nothing"), "7 July", false));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Nguyen Anh Dat","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Le Duc Lam","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Vu Viet Dung","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Truong Tuan Truong","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Dam Sy Hoang","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Trinh Ngoc Son","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
     }
 
     private void reflection() {
@@ -122,7 +120,7 @@ public class HomeScreenActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                listUserMessagesAdapter.getFilter().filter(newText);
+                listConversationsAdapter.getFilter().filter(newText);
                 return false;
             }
         });

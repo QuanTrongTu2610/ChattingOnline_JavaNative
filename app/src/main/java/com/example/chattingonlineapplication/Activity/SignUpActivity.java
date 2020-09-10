@@ -189,6 +189,7 @@ public class SignUpActivity extends AppCompatActivity {
             String finalPhoneNumber = userPhoneCode + userPhoneNumber.replaceAll(" ", "");
             Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
             intent.putExtra("signUpPhoneNumber", finalPhoneNumber);
+            intent.putExtra("codePhone", userPhoneCode);
             startActivity(intent);
         }
         return false;
