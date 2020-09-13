@@ -78,8 +78,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewBtnVerification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginTop="30dp"
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
@@ -89,8 +89,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayoutBtnVerification"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/custom_floating_button">
 
             <ProgressBar

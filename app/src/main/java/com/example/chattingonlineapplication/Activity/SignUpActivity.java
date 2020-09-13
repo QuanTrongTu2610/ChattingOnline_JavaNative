@@ -1,36 +1,52 @@
 package com.example.chattingonlineapplication.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.example.chattingonlineapplication.Plugins.ProgressFloatingButton;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class SignUpActivity extends AppCompatActivity {
 
     //FireBase
     private FirebaseAuth mAuth;
+    private String codeSentBack;
+    private PhoneAuthProvider.ForceResendingToken mResendToken;
+
 
     //normal variables
+    private ProgressFloatingButton progressFloatingButton;
     private static final int RESULT_COUNTRY_CODE = 200;
     private static final int GET_COUNTRY_CODE = 100;
     private ArrayList<CountryModel> listCountry;
     private CountryModel countryModel;
     //binding variables
-    private FloatingActionButton btnRegister;
+    private CardView cardViewBtnVerification;
+    private ConstraintLayout constraintLayoutBtnVerification;
     private EditText autvPhoneCode;
     private EditText autvPhoneNumber;
     private EditText autvCountry;
@@ -69,9 +85,9 @@ public class SignUpActivity extends AppCompatActivity {
                 } else {
                     autvPhoneNumber.setError(null);
                     if (validatedPhoneCode(autvPhoneCode.getText().toString().trim())) {
-                        btnRegister.setEnabled(true);
+                        constraintLayoutBtnVerification.setEnabled(true);
                     } else {
-                        btnRegister.setEnabled(false);
+                        constraintLayoutBtnVerification.setEnabled(false);
                     }
                 }
                 if (count != 0 && before == 0) {
@@ -147,9 +163,9 @@ public class SignUpActivity extends AppCompatActivity {
                 } else {
                     autvPhoneCode.setError(null);
                     if (validatedPhoneNumber(autvPhoneNumber.getText().toString().trim())) {
-                        btnRegister.setEnabled(true);
+                        constraintLayoutBtnVerification.setEnabled(true);
                     } else {
-                        btnRegister.setEnabled(false);
+                        constraintLayoutBtnVerification.setEnabled(false);
                     }
                 }
                 try {
@@ -169,9 +185,10 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
+        constraintLayoutBtnVerification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressFloatingButton.buttonActivated();
                 authorizeAccount();
             }
         });
@@ -185,14 +202,54 @@ public class SignUpActivity extends AppCompatActivity {
 
 
         if (validatedPhoneCode(userPhoneCode) && validatedPhoneNumber(userPhoneNumber)) {
-            //resgister in firebase
             String finalPhoneNumber = userPhoneCode + userPhoneNumber.replaceAll(" ", "");
-            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
-            intent.putExtra("signUpPhoneNumber", finalPhoneNumber);
-            intent.putExtra("codePhone", userPhoneCode);
-            startActivity(intent);
+            sendVerificationRequest(finalPhoneNumber);
         }
         return false;
+    }
+
+    private void sendVerificationRequest(String phoneNumber) {
+        try {
+            PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                    phoneNumber,
+                    60,
+                    TimeUnit.SECONDS,
+                    this,
+                    new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                        @Override
+                        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+//                            progressFloatingButton.buttonFinished();
+//                            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+//                            intent.putExtra("CODE_BACK", codeSentBack);
+//                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onVerificationFailed(@NonNull FirebaseException e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                            super.onCodeSent(s, forceResendingToken);
+                            codeSentBack = s;
+                            mResendToken = forceResendingToken;
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressFloatingButton.buttonFinished();
+                                    Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+                                    intent.putExtra("CODE_BACK", codeSentBack);
+                                    startActivity(intent);
+                                }
+                            }, 3000);
+                        }
+                    }
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean validatedPhoneCode(String countryCode) {
@@ -214,8 +271,10 @@ public class SignUpActivity extends AppCompatActivity {
         autvPhoneNumber = findViewById(R.id.autvPhoneNumber);
         listCountry = new ArrayList<>();
         autvPhoneCode = findViewById(R.id.autvPhoneCode);
-        btnRegister = findViewById(R.id.btnRegister);
+        constraintLayoutBtnVerification = findViewById(R.id.constraintLayoutBtnVerification);
         mAuth = FirebaseAuth.getInstance();
+        cardViewBtnVerification = findViewById(R.id.cardViewBtnVerification);
+        progressFloatingButton = new ProgressFloatingButton(this, cardViewBtnVerification);
     }
 
 

@@ -14,8 +14,10 @@
         android:theme="@style/AppThemeLight"
         android:usesCleartextTraffic="true">
         <activity android:name=".Activity.ChattingScreenActivity"></activity>
-        <activity android:name=".Activity.UserProfileActivity" />
-        <activity android:name=".Activity.VerifyAuthCodeActivity" />
+        <activity android:name=".Activity.UserProfileActivity"></activity>
+        <activity
+            android:name=".Activity.VerifyAuthCodeActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activity.HomeScreenActivity" />
         <activity android:name=".Activity.LauncherActivity">
             <intent-filter>

@@ -3,19 +3,18 @@ package com.example.chattingonlineapplication.Models;
 import java.util.List;
 
 public class User {
-    private int userId;
+    private String userId;
     private String userFirstName;
     private String userLastName;
     private String userName;
     private String userPhoneNumber;
     private String userAvatarUrl;
     private String userBio;
-    private List<User> userFriends;
     private String userDateUpdated;
     private String userDateCreated;
     private boolean userIsActive;
 
-    public User(int userId, String userFirstName, String userLastName, String userName, String userPhoneNumber, String userAvatarUrl, String userBio, List<User> userFriends, String userDateUpdated, String userDateCreated, boolean userIsActive) {
+    public User(String userId, String userFirstName, String userLastName, String userName, String userPhoneNumber, String userAvatarUrl, String userBio, String userDateUpdated, String userDateCreated, boolean userIsActive) {
         this.userId = userId;
         this.userFirstName = userFirstName;
         this.userLastName = userLastName;
@@ -23,17 +22,16 @@ public class User {
         this.userPhoneNumber = userPhoneNumber;
         this.userAvatarUrl = userAvatarUrl;
         this.userBio = userBio;
-        this.userFriends = userFriends;
         this.userDateUpdated = userDateUpdated;
         this.userDateCreated = userDateCreated;
         this.userIsActive = userIsActive;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -85,14 +83,6 @@ public class User {
         this.userBio = userBio;
     }
 
-    public List<User> getUserFriends() {
-        return userFriends;
-    }
-
-    public void setUserFriends(List<User> userFriends) {
-        this.userFriends = userFriends;
-    }
-
     public String getUserDateUpdated() {
         return userDateUpdated;
     }
@@ -101,7 +91,7 @@ public class User {
         this.userDateUpdated = userDateUpdated;
     }
 
-    public boolean isUserIsActive() {
+    public boolean getUserIsActive() {
         return userIsActive;
     }
 

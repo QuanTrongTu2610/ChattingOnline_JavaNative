@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/chattingItems"
+        android:icon="@drawable/ic_baseline_more_vert_black_24"
+        android:title="ChattingItems"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/callItem"
+                android:icon="@drawable/ic_baseline_local_phone_24"
+                android:title="Call"
+                app:showAsAction="never"></item>
+            <item
+                android:id="@+id/videoItem"
+                android:icon="@drawable/ic_outline_missed_video_call_24"
+                android:title="Video Call"
+                app:showAsAction="never"></item>
+            <item
+                android:id="@+id/searchItem"
+                android:icon="@drawable/ic_baseline_search_24"
+                android:title="Search"
+                app:showAsAction="never"></item>
+            <item
+                android:id="@+id/muteItem"
+                android:icon="@drawable/ic_baseline_notifications_off_24"
+                android:title="Mute Notification"
+                app:showAsAction="never"></item>
+            <item
+                android:id="@+id/deleteItem"
+                android:icon="@drawable/ic_outline_delete_24"
+                android:title="Delete Chat"
+                app:showAsAction="never"></item>
+        </menu>
+    </item>
+
+</menu>
