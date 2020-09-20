@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -150,8 +153,8 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.doneItem:
-                String userFirstName = edtFirstName.getText().toString().trim();
-                String userLastName = edtLastName.getText().toString().trim();
+                final String userFirstName = edtFirstName.getText().toString().trim();
+                final String userLastName = edtLastName.getText().toString().trim();
                 if (!userFirstName.isEmpty() && !userLastName.isEmpty()) {
                     try {
                         final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
@@ -159,7 +162,19 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                             @Override
                             public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
                                 User user = task.getResult().toObject(User.class);
-
+                                user.setUserLastName(userLastName);
+                                user.setUserFirstName(userFirstName);
+                                userDao.update(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.i("BasicInfor", "Success");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.i("BasicInfor", "Fail");
+                                    }
+                                });
                                 return null;
                             }
                         });
@@ -167,9 +182,9 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 } else {
-
+                    edtLastName.setError("Empty");
+                    edtFirstName.setError("Empty");
                 }
-
                 break;
         }
         return true;

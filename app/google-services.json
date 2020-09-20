@@ -1,34 +1,42 @@
 {
   "project_info": {
-    "project_number": "994698926595",
-    "firebase_url": "https://chattingonlineapplication.firebaseio.com",
-    "project_id": "chattingonlineapplication",
-    "storage_bucket": "chattingonlineapplication.appspot.com"
+    "project_number": "409744125251",
+    "firebase_url": "https://chattingonlineapp.firebaseio.com",
+    "project_id": "chattingonlineapp",
+    "storage_bucket": "chattingonlineapp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:994698926595:android:6b81fef846d4b80b710c36",
+        "mobilesdk_app_id": "1:409744125251:android:9b6721acba6b08485fd3f6",
         "android_client_info": {
           "package_name": "com.example.chattingonlineapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "994698926595-k0689atro7t35djsnjiav5fo8s612acg.apps.googleusercontent.com",
+          "client_id": "409744125251-4p0624gmkoo9cu8br8605aiqc6kp6ua6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chattingonlineapplication",
+            "certificate_hash": "6740efc0e575f602c2bc887a7a99eef74e732bf7"
+          }
+        },
+        {
+          "client_id": "409744125251-i2qhdbvipl3b7uu47bg0uo7mv7g4nahn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD2CLNXVrdY9zBkIaaw9qhw0JrhEF8AXWU"
+          "current_key": "AIzaSyCL4HTEQLxeK7QVNlMU6EqdhA50VEE9N44"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "994698926595-k0689atro7t35djsnjiav5fo8s612acg.apps.googleusercontent.com",
+              "client_id": "409744125251-i2qhdbvipl3b7uu47bg0uo7mv7g4nahn.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

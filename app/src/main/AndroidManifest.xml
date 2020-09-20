@@ -19,13 +19,7 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".Activity.SignupBasicProfileActivity"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity android:name=".Activity.ContactScreenActivity" />
         <activity android:name=".Activity.NewMessageActivity" />
         <activity android:name=".Activity.ChattingScreenActivity">
@@ -36,7 +30,13 @@
             android:name=".Activity.VerifyAuthCodeActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activity.HomeScreenActivity"></activity>
-        <activity android:name=".Activity.LauncherActivity"></activity>
+        <activity android:name=".Activity.LauncherActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".Activity.CountryListActivity" />
         <activity
             android:name=".Activity.SignUpActivity"

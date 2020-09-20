@@ -1,6 +1,7 @@
 package com.example.chattingonlineapplication.Activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.sql.Timestamp;
 
@@ -103,39 +105,56 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                             ;
                         } else {
                             try {
-                                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-                                String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
-                                User user = new User(firebaseUser.getUid(),
-                                        "People",
-                                        "A",
-                                        firebaseUser.getPhoneNumber(),
-                                        "None",
-                                        "None",
-                                        0,
-                                        timestamp.getTime(),
-                                        true,
-                                        ip,
-                                        InstanceProvider.port);
-                                UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                                userDao.create(user)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.i("Result", "Success");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.i("Result", "Fail");
-                                            }
-                                        });
+                                final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                                final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+                                final WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                                final String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+
+                                userDao.get(firebaseUser.getUid()).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        //Create New user
+                                        Log.i("Tag", "Success, user was not created");
+                                        User user = new User(firebaseUser.getUid(),
+                                                "People",
+                                                "A",
+                                                firebaseUser.getPhoneNumber(),
+                                                "None",
+                                                "None",
+                                                0,
+                                                timestamp.getTime(),
+                                                true,
+                                                ip,
+                                                InstanceProvider.port);
+                                        try {
+                                            userDao.create(user)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.i("Result", "Success");
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.i("Result", "Fail");
+                                                        }
+                                                    });
+                                        } catch (Exception ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    }
+                                }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        //Go To home Screen and update
+                                        Log.i("Tag", "Success, user was created");
+                                    }
+                                });
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
                         }
                     }
                 });
