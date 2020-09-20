@@ -1,67 +1,47 @@
 package com.example.chattingonlineapplication.Models;
 
 public class Conversation {
-    private int cId;
-    private int cReceiverId;
-    private String cLastMessage;
-    private String cDateSending;
-    private String cReceiverName;
-    private String cReceiverAvatarUrl;
+    private String conversationId;
+    private long conversationLastActive;
+    private String userId;
+    private String userId2;
 
-    public Conversation(int cId, int cReceiverId, String cLastMessage, String cDateSending, String cReceiverName, String cReceiverAvatarUrl) {
-        this.cId = cId;
-        this.cReceiverId = cReceiverId;
-        this.cLastMessage = cLastMessage;
-        this.cDateSending = cDateSending;
-        this.cReceiverName = cReceiverName;
-        this.cReceiverAvatarUrl = cReceiverAvatarUrl;
+    public Conversation(String conversationId, long conversationLastActive, String userId, String userId2) {
+        this.conversationId = conversationId;
+        this.conversationLastActive = conversationLastActive;
+        this.userId = userId;
+        this.userId2 = userId2;
     }
 
-    public int getcId() {
-        return cId;
+    public String getConversationId() {
+        return conversationId;
     }
 
-    public void setcId(int cId) {
-        this.cId = cId;
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
     }
 
-    public int getcReceiverId() {
-        return cReceiverId;
+    public long getConversationLastActive() {
+        return conversationLastActive;
     }
 
-    public void setcReceiverId(int cReceiverId) {
-        this.cReceiverId = cReceiverId;
+    public void conversationLastActive(long conversationLastActive) {
+        this.conversationLastActive = conversationLastActive;
     }
 
-    public String getcLastMessage() {
-        return cLastMessage;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setcLastMessage(String cLastMessage) {
-        this.cLastMessage = cLastMessage;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getcDateSending() {
-        return cDateSending;
+    public String getUserId2() {
+        return userId2;
     }
 
-    public void setcDateSending(String cDateSending) {
-        this.cDateSending = cDateSending;
-    }
-
-    public String getcReceiverName() {
-        return cReceiverName;
-    }
-
-    public void setcReceiverName(String cReceiverName) {
-        this.cReceiverName = cReceiverName;
-    }
-
-    public String getcReceiverAvatarUrl() {
-        return cReceiverAvatarUrl;
-    }
-
-    public void setcReceiverAvatarUrl(String cReceiverAvatarUrl) {
-        this.cReceiverAvatarUrl = cReceiverAvatarUrl;
+    public void setUserId2(String userId2) {
+        this.userId2 = userId2;
     }
 }

@@ -1,30 +1,36 @@
 package com.example.chattingonlineapplication.Models;
 
-import java.util.List;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     private String userId;
     private String userFirstName;
     private String userLastName;
-    private String userName;
     private String userPhoneNumber;
     private String userAvatarUrl;
     private String userBio;
-    private String userDateUpdated;
-    private String userDateCreated;
+    private long userDateUpdated;
+    private long userDateCreated;
     private boolean userIsActive;
+    private String userIPAddress;
+    private int userPort;
 
-    public User(String userId, String userFirstName, String userLastName, String userName, String userPhoneNumber, String userAvatarUrl, String userBio, String userDateUpdated, String userDateCreated, boolean userIsActive) {
+    public User() {
+
+    }
+
+    public User(String userId, String userFirstName, String userLastName, String userPhoneNumber, String userAvatarUrl, String userBio, long userDateUpdated, long userDateCreated, boolean userIsActive, String userIPAddress, int userPort) {
         this.userId = userId;
         this.userFirstName = userFirstName;
         this.userLastName = userLastName;
-        this.userName = userName;
         this.userPhoneNumber = userPhoneNumber;
         this.userAvatarUrl = userAvatarUrl;
         this.userBio = userBio;
         this.userDateUpdated = userDateUpdated;
         this.userDateCreated = userDateCreated;
         this.userIsActive = userIsActive;
+        this.userIPAddress = userIPAddress;
+        this.userPort = userPort;
     }
 
     public String getUserId() {
@@ -51,14 +57,6 @@ public class User {
         this.userLastName = userLastName;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getUserPhoneNumber() {
         return userPhoneNumber;
     }
@@ -83,15 +81,23 @@ public class User {
         this.userBio = userBio;
     }
 
-    public String getUserDateUpdated() {
+    public long getUserDateUpdated() {
         return userDateUpdated;
     }
 
-    public void setUserDateUpdated(String userDateUpdated) {
+    public void setUserDateUpdated(long userDateUpdated) {
         this.userDateUpdated = userDateUpdated;
     }
 
-    public boolean getUserIsActive() {
+    public long getUserDateCreated() {
+        return userDateCreated;
+    }
+
+    public void setUserDateCreated(long userDateCreated) {
+        this.userDateCreated = userDateCreated;
+    }
+
+    public boolean isUserIsActive() {
         return userIsActive;
     }
 
@@ -99,12 +105,22 @@ public class User {
         this.userIsActive = userIsActive;
     }
 
-    public String getUserDateCreated() {
-        return userDateCreated;
+    public String getUserIPAddress() {
+        return userIPAddress;
     }
 
-    public void setUserDateCreated(String userDateCreated) {
-        this.userDateCreated = userDateCreated;
+    public void setUserIPAddress(String userIPAddress) {
+        this.userIPAddress = userIPAddress;
+    }
+
+    public int getUserPort() {
+        return userPort;
+    }
+
+    public void setUserPort(int userPort) {
+        this.userPort = userPort;
     }
 }
+
+
 

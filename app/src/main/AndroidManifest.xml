@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.chattingonlineapplication">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -13,19 +17,26 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activity.ChattingScreenActivity"></activity>
-        <activity android:name=".Activity.UserProfileActivity"></activity>
         <activity
-            android:name=".Activity.VerifyAuthCodeActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".Activity.HomeScreenActivity" />
-        <activity android:name=".Activity.LauncherActivity">
+            android:name=".Activity.SignupBasicProfileActivity"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".Activity.ContactScreenActivity" />
+        <activity android:name=".Activity.NewMessageActivity" />
+        <activity android:name=".Activity.ChattingScreenActivity">
+
+        </activity>
+        <activity android:name=".Activity.UserProfileActivity" />
+        <activity
+            android:name=".Activity.VerifyAuthCodeActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".Activity.HomeScreenActivity"></activity>
+        <activity android:name=".Activity.LauncherActivity"></activity>
         <activity android:name=".Activity.CountryListActivity" />
         <activity
             android:name=".Activity.SignUpActivity"

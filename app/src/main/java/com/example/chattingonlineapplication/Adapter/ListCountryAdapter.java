@@ -81,7 +81,7 @@ public class ListCountryAdapter extends RecyclerView.Adapter implements Filterab
                 if (charSequence.length() == 0 || charSequence == null) {
                     filteredList.addAll(lstCountryFilter);
                 } else {
-                    String filter = charSequence.toString().toLowerCase().trim().replace(" ", "");
+                    String filter = charSequence.toString().toLowerCase().trim();
                     for (CountryModel item : lstCountryFilter) {
                         if (item.getName().toLowerCase().contains(filter)) {
                             filteredList.add(item);

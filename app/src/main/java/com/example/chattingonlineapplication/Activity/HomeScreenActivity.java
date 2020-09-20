@@ -1,5 +1,13 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -10,15 +18,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
-import com.example.chattingonlineapplication.Models.Conversation;
+import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.R;
 import com.google.android.material.navigation.NavigationView;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -33,7 +34,7 @@ public class HomeScreenActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
-    private ArrayList<Conversation> lstUserMessage;
+    private ArrayList<ConversationItem> lstUserMessage;
 
     private RecyclerView recyclerUser;
     private Toolbar toolbarHomeScreen;
@@ -69,24 +70,46 @@ public class HomeScreenActivity extends AppCompatActivity {
         recyclerUser.setLayoutManager(linearLayoutManager);
         recyclerUser.setAdapter(listConversationsAdapter);
 
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.itemNewGroup:
+                        break;
+                    case R.id.itemContacts:
+                        Intent intent = new Intent(HomeScreenActivity.this, ContactScreenActivity.class);
+                        startActivity(intent);
+                        break;
+                    case R.id.itemCalls:
+                        break;
+                    case R.id.itemSaveMessage:
+                        break;
+                    case R.id.itemSettings:
+                        break;
+                    case R.id.itemAppFAQ:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     private void bindingData() {
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Nguyen Anh Dat","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Le Duc Lam","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Vu Viet Dung","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Truong Tuan Truong","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Dam Sy Hoang","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Trinh Ngoc Son","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
-        lstUserMessage.add(new Conversation(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu","null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Nguyen Anh Dat", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Le Duc Lam", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Vu Viet Dung", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Truong Tuan Truong", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Dam Sy Hoang", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Trinh Ngoc Son", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
+        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
     }
 
     private void reflection() {
@@ -128,6 +151,7 @@ public class HomeScreenActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.i("ss", "" + item.getGroupId());
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);

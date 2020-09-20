@@ -1,15 +1,19 @@
-package com.example.chattingonlineapplication.Models;
+package com.example.chattingonlineapplication.Models.Item;
 
-public class Message {
-    private String messageId;
+public class MessageItem {
+    private String messageUserName;
+    private String messageUserUrl;
+    private String mesageId;
     private String messageFromUser;
     private String messageContent;
     private long messageDateCreated;
     private long messageSeenAt;
     private String conversationId;
 
-    public Message(String messageId, String messageFromUser, String messageContent, long messageDateCreated, long messageSeenAt, String conversationId) {
-        this.messageId = messageId;
+    public MessageItem(String messageUserName, String messageUserUrl, String mesageId, String messageFromUser, String messageContent, long messageDateCreated, long messageSeenAt, String conversationId) {
+        this.messageUserName = messageUserName;
+        this.messageUserUrl = messageUserUrl;
+        this.mesageId = mesageId;
         this.messageFromUser = messageFromUser;
         this.messageContent = messageContent;
         this.messageDateCreated = messageDateCreated;
@@ -17,12 +21,20 @@ public class Message {
         this.conversationId = conversationId;
     }
 
-    public String getMessageId() {
-        return messageId;
+    public String getMessageUserUrl() {
+        return messageUserUrl;
     }
 
-    public void setMessageId(String mesageId) {
-        this.messageId = mesageId;
+    public void setMessageUserUrl(String messageUserUrl) {
+        this.messageUserUrl = messageUserUrl;
+    }
+
+    public String getMesageId() {
+        return mesageId;
+    }
+
+    public void setMesageId(String mesageId) {
+        this.mesageId = mesageId;
     }
 
     public String getMessageFromUser() {
@@ -64,4 +76,13 @@ public class Message {
     public void setConversationId(String conversationId) {
         this.conversationId = conversationId;
     }
+
+    public String getMessageUserName() {
+        return messageUserName;
+    }
+
+    public void setMessageUserName(String messageUserName) {
+        this.messageUserName = messageUserName;
+    }
 }
+

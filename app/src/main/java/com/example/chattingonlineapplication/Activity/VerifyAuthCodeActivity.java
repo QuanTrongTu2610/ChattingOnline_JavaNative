@@ -1,31 +1,34 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.DialogInterface;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.format.Formatter;
+import android.util.Log;
+import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.widget.EditText;
-import android.widget.Toast;
-
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.InstanceProvider;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.sql.Timestamp;
 
 public class VerifyAuthCodeActivity extends AppCompatActivity {
 
@@ -99,23 +102,40 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                     }).show();
                             ;
                         } else {
-                            Toast.makeText(VerifyAuthCodeActivity.this, "success", Toast.LENGTH_SHORT).show();
                             try {
+                                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                                String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+                                User user = new User(firebaseUser.getUid(),
+                                        "People",
+                                        "A",
+                                        firebaseUser.getPhoneNumber(),
+                                        "None",
+                                        "None",
+                                        0,
+                                        timestamp.getTime(),
+                                        true,
+                                        ip,
+                                        InstanceProvider.port);
                                 UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                                User user = new User("asdasdas2",
-                                        "Tu",
-                                        "Quan Trong",
-                                        "Quan Trong Tu",
-                                        "+84832677917",
-                                        "httll",
-                                        "hello",
-                                        "Time",
-                                        "Time",
-                                        true);
-                                userDao.createUser(user);
-                            } catch (IOException e) {
+                                userDao.create(user)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.i("Result", "Success");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.i("Result", "Fail");
+                                            }
+                                        });
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
+
                         }
                     }
                 });

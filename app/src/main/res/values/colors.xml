@@ -16,5 +16,5 @@
     //basic color
     <color name="clBlack">#000000</color>
     <color name="clGray">#808080</color>
-    <color name="clLightGray">#e0e0e0</color>
+    <color name="clLightGray">#C3C1C1</color>
 </resources>

@@ -1,27 +1,23 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.content.Intent;
-import android.os.Bundle;
-
-import android.os.Handler;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
-
 import com.example.chattingonlineapplication.Plugins.ProgressFloatingButton;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
@@ -208,10 +204,10 @@ public class SignUpActivity extends AppCompatActivity {
         return false;
     }
 
-    private void sendVerificationRequest(String phoneNumber) {
+    private void sendVerificationRequest(final String finalPhoneNumber) {
         try {
             PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    phoneNumber,
+                    finalPhoneNumber,
                     60,
                     TimeUnit.SECONDS,
                     this,
@@ -241,6 +237,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     progressFloatingButton.buttonFinished();
                                     Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
                                     intent.putExtra("CODE_BACK", codeSentBack);
+                                    intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
                                     startActivity(intent);
                                 }
                             }, 3000);
@@ -283,7 +280,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GET_COUNTRY_CODE) {
             if (resultCode == RESULT_COUNTRY_CODE && data.getExtras() != null) {
-                CountryModel countryModel = (CountryModel) data.getExtras().getSerializable("countryObject");
+                countryModel = (CountryModel) data.getExtras().getSerializable("countryObject");
                 if (countryModel != null) {
                     autvCountry.setText(countryModel.getName());
                     autvPhoneCode.setText("+" + countryModel.getCallingCodes()[0]);

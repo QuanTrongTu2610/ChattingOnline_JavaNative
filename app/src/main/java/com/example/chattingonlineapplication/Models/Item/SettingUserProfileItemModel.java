@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Models;
+package com.example.chattingonlineapplication.Models.Item;
 
 public class SettingUserProfileItemModel {
     private int itemIcon;

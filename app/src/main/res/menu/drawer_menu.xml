@@ -25,10 +25,6 @@
 
     <group android:id="@+id/moreOption">
         <item
-            android:id="@+id/itemInviteFriends"
-            android:icon="@drawable/ic_baseline_friend_add_24"
-            android:title="Invite Friends"></item>
-        <item
             android:id="@+id/itemAppFAQ"
             android:icon="@drawable/ic_outline_info_24"
             android:title="Chatting App FAQ"></item>

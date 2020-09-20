@@ -12,11 +12,11 @@
 
     <!--Part2-->
     <com.google.android.material.navigation.NavigationView
-        android:fitsSystemWindows="true"
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_navigation_header"
         app:menu="@menu/drawer_menu">
         <!--Header-->

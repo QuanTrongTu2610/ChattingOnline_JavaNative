@@ -2,12 +2,9 @@ package com.example.chattingonlineapplication.Plugins;
 
 import android.content.Context;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.chattingonlineapplication.R;
