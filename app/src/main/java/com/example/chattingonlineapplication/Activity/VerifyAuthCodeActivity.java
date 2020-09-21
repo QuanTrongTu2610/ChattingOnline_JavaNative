@@ -18,7 +18,9 @@ import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenCon
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.InstanceProvider;
+import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -104,6 +106,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                     }).show();
                             ;
                         } else {
+                            LoadingDialog.getInstance(VerifyAuthCodeActivity.this).getDialog().show();
                             try {
                                 final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                                 final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -111,47 +114,21 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                 final WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                                 final String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
 
-                                userDao.get(firebaseUser.getUid()).addOnFailureListener(new OnFailureListener() {
+                                userDao.get(firebaseUser.getUid()).continueWith(new Continuation<DocumentSnapshot, Object>() {
                                     @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        //Create New user
-                                        Log.i("Tag", "Success, user was not created");
-                                        User user = new User(firebaseUser.getUid(),
-                                                "People",
-                                                "A",
-                                                firebaseUser.getPhoneNumber(),
-                                                "None",
-                                                "None",
-                                                0,
-                                                timestamp.getTime(),
-                                                true,
-                                                ip,
-                                                InstanceProvider.port);
-                                        try {
-                                            userDao.create(user)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.i("Result", "Success");
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.i("Result", "Fail");
-                                                        }
-                                                    });
-                                        } catch (Exception ex) {
-                                            ex.printStackTrace();
+                                    public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
+                                        User user = task.getResult().toObject(User.class);
+                                        if (user == null) {
+                                            //Basic Infor
+                                            Intent intent = new Intent(VerifyAuthCodeActivity.this, SignupBasicProfileActivity.class);
+                                            startActivity(intent);
+                                        } else {
+
                                         }
-                                    }
-                                }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        //Go To home Screen and update
-                                        Log.i("Tag", "Success, user was created");
+                                        return null;
                                     }
                                 });
+
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

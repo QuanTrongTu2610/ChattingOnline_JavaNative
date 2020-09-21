@@ -57,13 +57,16 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     private void navigateScreen() {
-        Log.i("i", "sss");
-        Intent intent = new Intent(LauncherActivity.this, SignUpActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("LIST_COUNTRY", listCountry);
-        intent.putExtras(bundle);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        try {
+            Intent intent = new Intent(LauncherActivity.this, SignUpActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("LIST_COUNTRY", listCountry);
+            intent.putExtras(bundle);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void bindingData(CountryModel[] list) {

@@ -45,6 +45,8 @@
         android:inputType="number"
         android:maxLines="1"
         android:padding="10dp"
-        android:textAlignment="center"></EditText>
+        android:textAlignment="center"
+        android:maxLength="6"
+        ></EditText>
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,12 +18,14 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,7 +34,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,13 +48,13 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
 
     private static final int GALLERY_ACCESS = 201;
 
-
+    private Bitmap img;
+    private boolean isOpenCam;
     private FirebaseUser firebaseUser;
     private ImageView imgCamera;
     private CircleImageView imgUserAvatar;
     private EditText edtFirstName;
     private EditText edtLastName;
-    private Uri image;
     private Toolbar toolbarRegisterInf;
 
     @Override
@@ -61,9 +69,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         toolbarRegisterInf.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SignupBasicProfileActivity.this, LauncherActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -111,25 +117,51 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         imgUserAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent gallery = new Intent();
-                gallery.setType("image/*");
-                gallery.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(gallery, GALLERY_ACCESS);
+                new AlertDialog.Builder(SignupBasicProfileActivity.this)
+                        .setTitle("Option Upload Image")
+                        .setMessage("You can choose which source of image to upload")
+                        .setPositiveButton("Taking a photo", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent gallery = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                if (gallery.resolveActivity(getPackageManager()) != null) {
+                                    startActivityForResult(gallery, GALLERY_ACCESS);
+                                }
+                                isOpenCam = true;
+                            }
+                        })
+                        .setNegativeButton("Open Gallery", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent gallery = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                gallery.setType("image/*");
+                                gallery.setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(gallery, GALLERY_ACCESS);
+                                isOpenCam = false;
+                            }
+                        }).show();
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GALLERY_ACCESS) {
-            image = data.getData();
-            try {
+            if (resultCode == RESULT_OK && isOpenCam) {
                 imgCamera.setVisibility(View.GONE);
-                Bitmap img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                img = (Bitmap) data.getExtras().get("data");
                 imgUserAvatar.setImageBitmap(img);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                Uri image = data.getData();
+                try {
+                    imgCamera.setVisibility(View.GONE);
+                    img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                    imgUserAvatar.setImageBitmap(img);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -158,26 +190,27 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                 if (!userFirstName.isEmpty() && !userLastName.isEmpty()) {
                     try {
                         final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                        userDao.get(firebaseUser.getUid()).continueWith(new Continuation<DocumentSnapshot, Object>() {
-                            @Override
-                            public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                                User user = task.getResult().toObject(User.class);
-                                user.setUserLastName(userLastName);
-                                user.setUserFirstName(userFirstName);
-                                userDao.update(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        img.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        final StorageReference reference = FirebaseStorage.getInstance()
+                                .getReference()
+                                .child("profileImages")
+                                .child(uid + ".jpeg");
+
+                        reference.putBytes(byteArrayOutputStream.toByteArray())
+                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.i("BasicInfor", "Success");
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        getDownloadUrl(reference);
                                     }
-                                }).addOnFailureListener(new OnFailureListener() {
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Log.i("BasicInfor", "Fail");
+                                        e.printStackTrace();
                                     }
                                 });
-                                return null;
-                            }
-                        });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -188,5 +221,14 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private void getDownloadUrl(StorageReference reference) {
+        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.i("hello" , "uri" + uri);
+            }
+        });
     }
 }
