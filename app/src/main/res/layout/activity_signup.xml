@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/custom_tool_bar_background"
-        android:theme="@style/MyActionBarTheme"
+        android:theme="@style/ToolBarTheme.ToolBarStyle"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -1,14 +1,27 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -69,16 +82,6 @@ public class ContactScreenActivity extends AppCompatActivity {
     }
 
     private void bindingData() {
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
-        lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
         lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
         lstContactItem.add(new ContactItem("htttp:", "Quan Trong Tu", new Timestamp(System.currentTimeMillis()).getTime()));
     }

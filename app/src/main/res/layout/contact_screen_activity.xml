@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/custom_tool_bar_background"
-            android:theme="@style/MyActionBarTheme"
+            android:theme="@style/ToolBarTheme.ToolBarStyle"
             app:title="Contacts"></androidx.appcompat.widget.Toolbar>
 
         <com.miguelcatalan.materialsearchview.MaterialSearchView

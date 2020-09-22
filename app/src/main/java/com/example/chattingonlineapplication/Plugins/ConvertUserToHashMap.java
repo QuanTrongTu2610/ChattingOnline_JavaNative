@@ -1,6 +1,7 @@
 package com.example.chattingonlineapplication.Plugins;
 
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.Interface.ConvertObjectToHashMap;
 
 import java.util.HashMap;
 
@@ -19,6 +20,7 @@ public class ConvertUserToHashMap implements ConvertObjectToHashMap<User> {
         try {
             HashMap<String, Object> container = new HashMap<>();
             container.put("userId", object.getUserId());
+            container.put("userFirstName", object.getUserFirstName());
             container.put("userLastName", object.getUserLastName());
             container.put("userBio", object.getUserBio());
             container.put("userPhoneNumber", object.getUserPhoneNumber());

@@ -6,6 +6,8 @@
 
     //covert couple 1
     //blue as main color
+    <color name="clDarkBlue">#3D698E</color>
+    <color name="clMoreDarkBlue">#315878</color>
     <color name="clLightBlue">#4A91CD</color>
     <color name="clPrimaryDarkBlue">#222E3A</color>
 

@@ -4,10 +4,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,9 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.CompressImage;
+import com.example.chattingonlineapplication.Plugins.InstanceProvider;
+import com.example.chattingonlineapplication.Plugins.Interface.ICompressImageFirebase;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
@@ -41,6 +46,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -189,28 +196,40 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                 final String userLastName = edtLastName.getText().toString().trim();
                 if (!userFirstName.isEmpty() && !userLastName.isEmpty()) {
                     try {
+                        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                        final String ipAddress = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
                         final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        img.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        final StorageReference reference = FirebaseStorage.getInstance()
-                                .getReference()
-                                .child("profileImages")
-                                .child(uid + ".jpeg");
-
-                        reference.putBytes(byteArrayOutputStream.toByteArray())
-                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        getDownloadUrl(reference);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                });
+                        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        CompressImage.getInstance().compressImageToFireBase(uid, img, new ICompressImageFirebase<Uri>() {
+                            @Override
+                            public void compress(Uri uri) {
+                                User user = new User(
+                                        uid,
+                                        userFirstName,
+                                        userLastName,
+                                        FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(),
+                                        uri.toString(),
+                                        "none",
+                                        0,
+                                        new Timestamp(System.currentTimeMillis()).getTime(),
+                                        true,
+                                        ipAddress,
+                                        InstanceProvider.port
+                                );
+                                try {
+                                    userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
+                                            Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -227,7 +246,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Log.i("hello" , "uri" + uri);
+                Log.i("hello", "uri" + uri);
             }
         });
     }

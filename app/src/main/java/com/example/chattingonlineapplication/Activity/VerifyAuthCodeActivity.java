@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.sql.Timestamp;
 
@@ -38,12 +39,21 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
 
     private EditText editTextOTP;
 
+    private AlertDialog alertDialog;
 
     private boolean isVerifiedSuccess = false;
     private String codeSent;
     private FirebaseAuth mAuth;
     private String phoneNumber;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this).dismiss();
+        Log.i("Resume", "Running");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +75,8 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (editable.toString().trim().length() == 6) {
+                    alertDialog = LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this);
+                    alertDialog.show();
                     verifySignInCode();
                 }
             }
@@ -102,17 +114,15 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             dialogInterface.dismiss();
+                                            alertDialog.dismiss();
                                         }
                                     }).show();
                             ;
                         } else {
-                            LoadingDialog.getInstance(VerifyAuthCodeActivity.this).getDialog().show();
                             try {
                                 final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                                 final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                                 final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                                final WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-                                final String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
 
                                 userDao.get(firebaseUser.getUid()).continueWith(new Continuation<DocumentSnapshot, Object>() {
                                     @Override
@@ -123,7 +133,21 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                             Intent intent = new Intent(VerifyAuthCodeActivity.this, SignupBasicProfileActivity.class);
                                             startActivity(intent);
                                         } else {
-
+                                            //Tothe main Screen but should update the Ip address.
+                                            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                                            String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+                                            FireStoreOpenConnection.getInstance().getAccessToFireStore()
+                                                    .collection("user")
+                                                    .document(user.getUserId())
+                                                    .update("userIpAddress", ip)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            alertDialog.dismiss();
+                                                            Intent intent = new Intent(VerifyAuthCodeActivity.this, HomeScreenActivity.class);
+                                                            startActivity(intent);
+                                                        }
+                                                    });
                                         }
                                         return null;
                                     }

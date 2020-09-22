@@ -1,36 +1,61 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
+import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
+import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeScreenActivity extends AppCompatActivity {
 
 
     private View viewHeader;
-    private ImageView imgUserAvatar;
+
     private LinearLayoutManager linearLayoutManager;
     private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
@@ -42,12 +67,38 @@ public class HomeScreenActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
+    private List<String> contactsPhoneNumber;
+    private static final int PERMISSION_READCONTACT = 300;
+
+    //InDrawer
+    private CircleImageView imgUserAvatar;
+    private TextView tvNameOfUser;
+    private TextView tvUserPhoneNumber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
         reflection();
         bindingData();
+
+        requestContactPermission();
+
+        try {
+            new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
+                    .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            User user = documentSnapshot.toObject(User.class);
+                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
+                            tvUserPhoneNumber.setText(user.getUserPhoneNumber());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         setSupportActionBar(toolbarHomeScreen);
         ActionBar actionBar = getSupportActionBar();
@@ -100,16 +151,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Le Duc Lam", "null"));
         lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Vu Viet Dung", "null"));
         lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Truong Tuan Truong", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Dam Sy Hoang", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Trinh Ngoc Son", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
     }
 
     private void reflection() {
@@ -120,9 +161,13 @@ public class HomeScreenActivity extends AppCompatActivity {
         recyclerUser = findViewById(R.id.recyclerUser);
         lstUserMessage = new ArrayList<>();
         searchViewLayoutUserMessage = findViewById(R.id.searchViewLayoutUserMessage);
-
         viewHeader = navigationView.getHeaderView(0);
+
         imgUserAvatar = viewHeader.findViewById(R.id.imgUserAvatar);
+        tvNameOfUser = viewHeader.findViewById(R.id.tvNameOfUser);
+        tvUserPhoneNumber = viewHeader.findViewById(R.id.tvUserPhoneNumber);
+
+        contactsPhoneNumber = new ArrayList<>();
     }
 
     @Override
@@ -160,4 +205,66 @@ public class HomeScreenActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void requestContactPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.i("cc", "1");
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                Log.i("cc", "1");
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+                    Log.i("cc", "2");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Read Contacts permission");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setMessage("Please enable access to contacts.");
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @TargetApi(Build.VERSION_CODES.M)
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            requestPermissions(
+                                    new String[]
+                                            {android.Manifest.permission.READ_CONTACTS}
+                                    , PERMISSION_READCONTACT);
+                        }
+                    });
+                    builder.show();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.READ_CONTACTS},
+                            PERMISSION_READCONTACT);
+                }
+            } else {
+                getContact();
+            }
+        } else {
+            getContact();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_READCONTACT:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getContact();
+                }
+                break;
+        }
+    }
+
+    private void getContact() {
+        //pass all phone book to cursor
+        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null);
+        while (cursor.moveToNext()) {
+            String mobile = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Log.i("get", mobile);
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            if (mobile.equalsIgnoreCase(uid)) {
+                if (mobile.contains("+")) {
+                    contactsPhoneNumber.add(mobile);
+                }
+            }
+        }
+    }
 }

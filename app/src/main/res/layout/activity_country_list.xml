@@ -15,12 +15,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
-            android:theme="@style/MyActionBarTheme"
             android:id="@+id/toolbarCountryList"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/custom_tool_bar_background"
-            app:title="Choose a country"></androidx.appcompat.widget.Toolbar>
+            android:theme="@style/ToolBarTheme.ToolBarStyle"
+            app:title="Choose a country"
+            app:titleTextColor="@color/clWhite"></androidx.appcompat.widget.Toolbar>
 
         <com.miguelcatalan.materialsearchview.MaterialSearchView
             android:id="@+id/searchViewLayout"

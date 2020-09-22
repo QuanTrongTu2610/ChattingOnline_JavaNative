@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -11,10 +13,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListSettingOptionsUserProfileAdapter;
+import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.Item.SettingUserProfileItemModel;
+import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +37,11 @@ public class UserProfileActivity extends AppCompatActivity {
     private RecyclerView recyclerProfileUser;
     private CollapsingToolbarLayout collapsingToolBar;
 
+
+    private ImageView imgUserAvatar;
+    private TextView tvUserPhoneNumber;
+    private TextView tvUserBio;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +49,23 @@ public class UserProfileActivity extends AppCompatActivity {
         reflection();
         bindingData();
 
-        collapsingToolBar.setTitle("Quan Trong Tu");
+        try {
+            new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
+                    .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            User user = documentSnapshot.toObject(User.class);
+                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            collapsingToolBar.setTitle(user.getUserFirstName() + " " + user.getUserLastName());
+                            tvUserPhoneNumber.setText(user.getUserPhoneNumber());
+                            tvUserBio.setText(user.getUserBio());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -76,6 +106,9 @@ public class UserProfileActivity extends AppCompatActivity {
         appBarLayout = findViewById(R.id.app_bar);
         collapsingToolBar = findViewById(R.id.collapsingToolBar);
         lst = new ArrayList<>();
+        imgUserAvatar = findViewById(R.id.imgUserAvatar);
+        tvUserPhoneNumber = findViewById(R.id.tvUserPhoneNumber);
+        tvUserBio = findViewById(R.id.tvUserBio);
     }
 
     @Override

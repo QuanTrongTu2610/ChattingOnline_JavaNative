@@ -3,9 +3,8 @@
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/clBlack</item>
-        <item name="colorPrimaryDark">@color/clWhite</item>
+        <item name="colorPrimaryDark">@color/clMoreDarkBlue</item>
         <item name="colorAccent">@color/clLightBlue</item>
-        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Divider">
@@ -14,8 +13,11 @@
         <item name="android:background">@color/clGray</item>
     </style>
 
-    <style name="MyActionBarTheme" parent="ThemeOverlay.MaterialComponents.ActionBar">
-        <item name="android:textColorPrimary">@color/clBlack</item>
+    <style name="ToolBarTheme.ToolBarStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/clWhite</item>
+        <item name="android:textColor">@color/clWhite</item>
+        <item name="android:textColorPrimaryInverse">@color/clWhite</item>
+        <item name="android:iconTint">@color/clWhite</item>
     </style>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.example.chattingonlineapplication.Plugins;
 
 import com.example.chattingonlineapplication.Models.Message;
+import com.example.chattingonlineapplication.Plugins.Interface.ConvertObjectToHashMap;
 
 import java.util.HashMap;
 

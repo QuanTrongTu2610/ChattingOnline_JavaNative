@@ -22,6 +22,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
+                android:id="@+id/imgUserAvatar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -38,8 +39,8 @@
                 android:id="@+id/toolBarUserProfile"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-               ></androidx.appcompat.widget.Toolbar>
+                android:theme="@style/ToolBarTheme.ToolBarStyle"
+                app:layout_collapseMode="pin"></androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -95,6 +96,7 @@
                     android:paddingBottom="10dp">
 
                     <TextView
+                        android:id="@+id/tvUserPhoneNumber"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="+84 832677917"
@@ -125,36 +127,7 @@
                     android:paddingBottom="10dp">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="None"
-                        android:textColor="@color/clBlack"
-                        android:textSize="14sp"></TextView>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="UserName"
-                        android:textColor="@color/clGray"></TextView>
-
-                </LinearLayout>
-
-                <View
-                    style="@style/Divider"
-                    android:layout_marginLeft="18dp"
-                    android:layout_marginRight="18dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ripple_click_animation"
-                    android:orientation="vertical"
-                    android:paddingLeft="18dp"
-                    android:paddingTop="10dp"
-                    android:paddingRight="18dp"
-                    android:paddingBottom="10dp">
-
-                    <TextView
+                        android:id="@+id/tvUserBio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Bio"
