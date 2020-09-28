@@ -1,12 +1,21 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,14 +30,20 @@ import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserProfileActivity extends AppCompatActivity {
+
+    private static final int GALLERY_ACCESS = 303;
+    private boolean isOpenCam;
+    private Bitmap img;
 
     private List<SettingUserProfileItemModel> lst;
 
@@ -41,6 +56,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private ImageView imgUserAvatar;
     private TextView tvUserPhoneNumber;
     private TextView tvUserBio;
+    private FloatingActionButton fabChangeAvatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +64,35 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
         reflection();
         bindingData();
+
+        fabChangeAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(UserProfileActivity.this)
+                        .setTitle("Option Upload Image")
+                        .setMessage("You can choose which source of image to upload")
+                        .setPositiveButton("Taking a photo", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent gallery = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                if (gallery.resolveActivity(getPackageManager()) != null) {
+                                    startActivityForResult(gallery, GALLERY_ACCESS);
+                                }
+                                isOpenCam = true;
+                            }
+                        })
+                        .setNegativeButton("Open Gallery", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent gallery = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                gallery.setType("image/*");
+                                gallery.setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(gallery, GALLERY_ACCESS);
+                                isOpenCam = false;
+                            }
+                        }).show();
+            }
+        });
 
         try {
             new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
@@ -109,6 +154,7 @@ public class UserProfileActivity extends AppCompatActivity {
         imgUserAvatar = findViewById(R.id.imgUserAvatar);
         tvUserPhoneNumber = findViewById(R.id.tvUserPhoneNumber);
         tvUserBio = findViewById(R.id.tvUserBio);
+        fabChangeAvatar = findViewById(R.id.fabChangeAvatar);
     }
 
     @Override
@@ -116,5 +162,36 @@ public class UserProfileActivity extends AppCompatActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.user_profile_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.itemLogout:
+                Intent intent = new Intent(UserProfileActivity.this, LauncherActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GALLERY_ACCESS) {
+            if (resultCode == RESULT_OK && isOpenCam) {
+                img = (Bitmap) data.getExtras().get("data");
+                imgUserAvatar.setImageBitmap(img);
+            } else {
+                Uri image = data.getData();
+                try {
+                    img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                    imgUserAvatar.setImageBitmap(img);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

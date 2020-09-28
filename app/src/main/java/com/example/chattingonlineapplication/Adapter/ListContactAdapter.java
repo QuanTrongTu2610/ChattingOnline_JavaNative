@@ -17,6 +17,7 @@ import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IContactListClickListener;
 import com.example.chattingonlineapplication.Models.Item.ContactItem;
 import com.example.chattingonlineapplication.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,8 +46,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ContactItem item = lstContact.get(position);
         ViewHolder viewHolder = (ViewHolder) holder;
-//        Picasso.get().load(item.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-        viewHolder.imgUserAvatar.setImageResource(R.drawable.ava);
+        Picasso.get().load(item.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
         viewHolder.tvUserName.setText(item.getUserName());
         viewHolder.tvLastMessageAt.setText("Last message at " + new Date(item.getLastMessageAt() * 1000));
     }

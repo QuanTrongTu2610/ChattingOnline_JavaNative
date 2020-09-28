@@ -5,6 +5,7 @@ import com.example.chattingonlineapplication.Plugins.ConvertUserToHashMap;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class UserDao implements IObjectDao<User> {
     private User user;
@@ -15,6 +16,10 @@ public class UserDao implements IObjectDao<User> {
         this.db = firestore;
     }
 
+
+    public Task<QuerySnapshot> getAll() throws Exception {
+        return db.collection(collectionName).get();
+    }
 
     public Task<Void> create(User user) throws Exception {
         return db.collection(collectionName).document(user.getUserId()).set(ConvertUserToHashMap.getInstance().convert(user));

@@ -46,6 +46,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -200,6 +202,9 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                         final String ipAddress = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
                         final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
                         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        ServerSocket s = new ServerSocket(0);
+                        final int port = s.getLocalPort();
+                        s.close();
                         CompressImage.getInstance().compressImageToFireBase(uid, img, new ICompressImageFirebase<Uri>() {
                             @Override
                             public void compress(Uri uri) {
@@ -214,7 +219,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                                         new Timestamp(System.currentTimeMillis()).getTime(),
                                         true,
                                         ipAddress,
-                                        InstanceProvider.port
+                                        port
                                 );
                                 try {
                                     userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {

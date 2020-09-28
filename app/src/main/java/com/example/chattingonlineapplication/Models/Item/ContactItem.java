@@ -5,6 +5,7 @@ public class ContactItem {
     private String userName;
     private long lastMessageAt;
 
+    public ContactItem() {}
     public ContactItem(String userAvatarUrl, String userName, long lastMessageAt) {
         this.userAvatarUrl = userAvatarUrl;
         this.userName = userName;

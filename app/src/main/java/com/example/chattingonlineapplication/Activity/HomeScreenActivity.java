@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,7 +34,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
+import com.example.chattingonlineapplication.Database.SQLite.ContactSQLiteHelper;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
+import com.example.chattingonlineapplication.Models.PhoneContact;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
@@ -67,7 +70,6 @@ public class HomeScreenActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
-    private List<String> contactsPhoneNumber;
     private static final int PERMISSION_READCONTACT = 300;
 
     //InDrawer
@@ -80,7 +82,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
         reflection();
-        bindingData();
 
         requestContactPermission();
 
@@ -145,13 +146,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         });
     }
 
-    private void bindingData() {
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Quan Trong Tu", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Nguyen Anh Dat", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Le Duc Lam", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Vu Viet Dung", "null"));
-        lstUserMessage.add(new ConversationItem(1, 1, "Hello, How are you ?", "July 7", "Truong Tuan Truong", "null"));
-    }
 
     private void reflection() {
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -166,8 +160,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         imgUserAvatar = viewHeader.findViewById(R.id.imgUserAvatar);
         tvNameOfUser = viewHeader.findViewById(R.id.tvNameOfUser);
         tvUserPhoneNumber = viewHeader.findViewById(R.id.tvUserPhoneNumber);
-
-        contactsPhoneNumber = new ArrayList<>();
     }
 
     @Override
@@ -196,7 +188,6 @@ public class HomeScreenActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.i("ss", "" + item.getGroupId());
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
@@ -208,11 +199,8 @@ public class HomeScreenActivity extends AppCompatActivity {
 
     private void requestContactPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.i("cc", "1");
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                Log.i("cc", "1");
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-                    Log.i("cc", "2");
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Read Contacts permission");
                     builder.setPositiveButton(android.R.string.ok, null);
@@ -234,10 +222,10 @@ public class HomeScreenActivity extends AppCompatActivity {
                             PERMISSION_READCONTACT);
                 }
             } else {
-                getContact();
+                new ContactInitialize().execute();
             }
         } else {
-            getContact();
+            new ContactInitialize().execute();
         }
     }
 
@@ -247,24 +235,38 @@ public class HomeScreenActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSION_READCONTACT:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getContact();
+                    new ContactInitialize().execute();
                 }
                 break;
         }
     }
 
-    private void getContact() {
-        //pass all phone book to cursor
-        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null);
-        while (cursor.moveToNext()) {
-            String mobile = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            Log.i("get", mobile);
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            if (mobile.equalsIgnoreCase(uid)) {
-                if (mobile.contains("+")) {
-                    contactsPhoneNumber.add(mobile);
+
+    class ContactInitialize extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ContactSQLiteHelper c = new ContactSQLiteHelper(HomeScreenActivity.this);
+            //delete database
+            c.deleteAll();
+            //pass all phone book to cursor
+            List<String> contactsPhoneNumber = new ArrayList<>();
+            PhoneContact ph = new PhoneContact();
+            //pass all phone book to cursor
+            Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null);
+            while (cursor.moveToNext()) {
+                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String mobile = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+                if (!mobile.equalsIgnoreCase(uid)) {
+                    if (mobile.contains("+")) {
+                        ph.setUserName(name);
+                        ph.setPhoneNumber(mobile);
+                        c.add(ph);
+                    }
                 }
             }
+            return null;
         }
     }
 }
