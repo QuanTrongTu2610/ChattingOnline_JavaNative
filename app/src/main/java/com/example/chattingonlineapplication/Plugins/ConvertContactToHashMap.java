@@ -20,9 +20,8 @@ public class ConvertContactToHashMap implements ConvertObjectToHashMap<Contact> 
     public HashMap<String, Object> convert(Contact object) {
         HashMap<String, Object> hash = new HashMap<>();
         hash.put("contactId", object.getContactId());
-        hash.put("contactLastActive", object.getContactLastActive());
         hash.put("userId", object.getUserId());
-        hash.put("userId2", object.getUserId2());
+        hash.put("userFriend", object.getUserFriend());
         return hash;
     }
 }

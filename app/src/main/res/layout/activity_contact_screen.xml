@@ -78,11 +78,25 @@
                 android:paddingBottom="5dp"
                 android:text="Sorted by name"></TextView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerContacts"
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"></androidx.recyclerview.widget.RecyclerView>
+                android:layout_height="wrap_content">
+
+                <ProgressBar
+                    android:id="@+id/progressContactLoader"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </ProgressBar>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerContacts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"></androidx.recyclerview.widget.RecyclerView>
+            </FrameLayout>
+
         </LinearLayout>
 
 

@@ -9,7 +9,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class UserDao implements IObjectDao<User> {
     private User user;
-    private static final String collectionName = "user";
     private FirebaseFirestore db;
 
     public UserDao(FirebaseFirestore firestore) {
@@ -18,22 +17,22 @@ public class UserDao implements IObjectDao<User> {
 
 
     public Task<QuerySnapshot> getAll() throws Exception {
-        return db.collection(collectionName).get();
+        return db.collection(InstanceDataBaseProvider.userCollection).get();
     }
 
     public Task<Void> create(User user) throws Exception {
-        return db.collection(collectionName).document(user.getUserId()).set(ConvertUserToHashMap.getInstance().convert(user));
+        return db.collection(InstanceDataBaseProvider.userCollection).document(user.getUserId()).set(ConvertUserToHashMap.getInstance().convert(user));
     }
 
     public Task<Void> delete(String id) throws Exception {
-        return db.collection(collectionName).document(id).delete();
+        return db.collection(InstanceDataBaseProvider.userCollection).document(id).delete();
     }
 
     public Task<Void> update(User user) throws Exception {
-        return db.collection(collectionName).document(user.getUserId()).update(ConvertUserToHashMap.getInstance().convert(user));
+        return db.collection(InstanceDataBaseProvider.userCollection).document(user.getUserId()).update(ConvertUserToHashMap.getInstance().convert(user));
     }
 
     public Task<DocumentSnapshot> get(String id) throws Exception {
-        return db.collection(collectionName).document(id).get();
+        return db.collection(InstanceDataBaseProvider.userCollection).document(id).get();
     }
 }

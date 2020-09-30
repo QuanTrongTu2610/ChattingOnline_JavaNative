@@ -2,12 +2,15 @@ package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IContactListClickListener;
-import com.example.chattingonlineapplication.Models.Item.ContactItem;
+import com.example.chattingonlineapplication.Models.Contact;
+import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
 
@@ -25,11 +29,11 @@ import java.util.List;
 
 public class ListContactAdapter extends RecyclerView.Adapter implements Filterable {
 
-    private List<ContactItem> lstClone;
-    private List<ContactItem> lstContact;
+    private List<Contact> lstClone;
+    private List<Contact> lstContact;
     private Context context;
 
-    public ListContactAdapter(Context context, List<ContactItem> lst) {
+    public ListContactAdapter(Context context, List<Contact> lst) {
         this.context = context;
         this.lstContact = lst;
         this.lstClone = new ArrayList<>(lstContact);
@@ -44,11 +48,22 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ContactItem item = lstContact.get(position);
+        Contact item = lstContact.get(position);
+        final User user = item.getUserFriend();
         ViewHolder viewHolder = (ViewHolder) holder;
-        Picasso.get().load(item.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-        viewHolder.tvUserName.setText(item.getUserName());
-        viewHolder.tvLastMessageAt.setText("Last message at " + new Date(item.getLastMessageAt() * 1000));
+        Picasso.get().load(user.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        viewHolder.tvUserName.setText(user.getUserFirstName() + " " + user.getUserLastName());
+        viewHolder.tvUserFriendPhoneNumber.setText(user.getUserPhoneNumber());
+        viewHolder.setEventClickListener(new IContactListClickListener() {
+            @Override
+            public void onClick(View view, int position, boolean isLongClick) {
+                if (!isLongClick) {
+                    Intent intent = new Intent(context, ChattingScreenActivity.class);
+                    intent.putExtra("USER_FRIEND", user);
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override
@@ -61,13 +76,14 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                List<ContactItem> filteredList = new ArrayList<>();
+                List<Contact> filteredList = new ArrayList<>();
                 if (charSequence.length() == 0 || charSequence == null) {
                     filteredList.addAll(lstClone);
                 } else {
                     String filter = charSequence.toString().toLowerCase().trim();
-                    for (ContactItem item : lstClone) {
-                        if (item.getUserName().toLowerCase().contains(filter)) {
+                    for (Contact item : lstClone) {
+                        User user = item.getUserFriend();
+                        if ((user.getUserFirstName() + " " + user.getUserLastName()).toLowerCase().contains(filter)) {
                             filteredList.add(item);
                         }
                     }
@@ -81,7 +97,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 lstContact.clear();
-                lstContact.addAll((ArrayList<ContactItem>) filterResults.values);
+                lstContact.addAll((ArrayList<Contact>) filterResults.values);
                 notifyDataSetChanged();
             }
         };
@@ -91,7 +107,8 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
 
         private ImageView imgUserAvatar;
         private TextView tvUserName;
-        private TextView tvLastMessageAt;
+        private TextView tvUserFriendPhoneNumber;
+        private LinearLayout containerContact;
 
         private IContactListClickListener iContactListClickListener;
 
@@ -99,7 +116,11 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
             super(itemView);
             this.imgUserAvatar = itemView.findViewById(R.id.imgUserAvatar);
             this.tvUserName = itemView.findViewById(R.id.tvUserName);
-            this.tvLastMessageAt = itemView.findViewById(R.id.tvLastMessageAt);
+            this.tvUserFriendPhoneNumber = itemView.findViewById(R.id.tvUserFriendPhoneNumber);
+            this.containerContact = itemView.findViewById(R.id.containerContact);
+
+            this.containerContact.setOnClickListener(this);
+            this.containerContact.setOnLongClickListener(this);
         }
 
         public void setEventClickListener(IContactListClickListener iContactListClickListener) {

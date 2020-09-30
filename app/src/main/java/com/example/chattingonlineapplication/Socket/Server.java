@@ -3,6 +3,7 @@ package com.example.chattingonlineapplication.Socket;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,8 +16,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+//ServerToReceive message
 public class Server extends Thread {
-
 
     private String serverIpAddress;
     private int socketPort;
@@ -40,12 +41,13 @@ public class Server extends Thread {
     public void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(socketPort);
+            Log.i("ServerSocket", "Server is staring at IP: " + serverIpAddress + " port: " + socketPort);
             serverSocket.setReuseAddress(true);
             while (!Thread.interrupted()) {
                 Socket connection = serverSocket.accept();
                 //callReceiveMessage
-                ReceiveMessage r = new ReceiveMessage();
-                r.execute(connection);
+                ReceiveMessage receiveMessage = new ReceiveMessage();
+                receiveMessage.execute(connection);
 
             }
         } catch (Exception e) {
@@ -62,6 +64,7 @@ public class Server extends Thread {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(sockets[0].getInputStream()));
                 text = br.readLine();
+                Log.i("Message Receive", "Received => " + text);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -70,7 +73,7 @@ public class Server extends Thread {
 
         @Override
         protected void onPostExecute(String s) {
-
+            //show Message
         }
     }
 }

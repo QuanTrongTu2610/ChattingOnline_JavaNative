@@ -12,7 +12,7 @@ public class User implements Serializable {
     private long userDateUpdated;
     private long userDateCreated;
     private boolean userIsActive;
-    private String userIPAddress;
+    private String userIpAddress;
     private int userPort;
 
     public User() {
@@ -29,7 +29,7 @@ public class User implements Serializable {
         this.userDateUpdated = userDateUpdated;
         this.userDateCreated = userDateCreated;
         this.userIsActive = userIsActive;
-        this.userIPAddress = userIPAddress;
+        this.userIpAddress = userIPAddress;
         this.userPort = userPort;
     }
 
@@ -105,12 +105,12 @@ public class User implements Serializable {
         this.userIsActive = userIsActive;
     }
 
-    public String getUserIPAddress() {
-        return userIPAddress;
+    public String getUserIpAddress() {
+        return userIpAddress;
     }
 
-    public void setUserIPAddress(String userIPAddress) {
-        this.userIPAddress = userIPAddress;
+    public void setUserIpAddress(String userIPAddress) {
+        this.userIpAddress = userIPAddress;
     }
 
     public int getUserPort() {

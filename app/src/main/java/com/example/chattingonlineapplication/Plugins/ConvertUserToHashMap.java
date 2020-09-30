@@ -28,7 +28,7 @@ public class ConvertUserToHashMap implements ConvertObjectToHashMap<User> {
             container.put("userDateUpdated", object.getUserDateUpdated());
             container.put("userDateCreated", object.getUserDateCreated());
             container.put("userIsActive", object.isUserIsActive());
-            container.put("userIpAddress", object.getUserIPAddress());
+            container.put("userIpAddress", object.getUserIpAddress());
             container.put("userPort", object.getUserPort());
             return container;
         } catch (Exception e) {

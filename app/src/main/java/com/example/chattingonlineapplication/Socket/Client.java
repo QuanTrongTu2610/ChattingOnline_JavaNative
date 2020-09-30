@@ -22,6 +22,9 @@ public class Client extends Thread {
     private ListMessageAdapter adapter;
 
 
+    public Client() {
+
+    }
 
     @Override
     public void run() {

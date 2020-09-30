@@ -8,7 +8,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ContactDao implements IObjectDao<Contact> {
     private Contact contact;
-    private static final String collectionName = "contact";
     private FirebaseFirestore db;
 
     public ContactDao(FirebaseFirestore firestore) {
@@ -16,19 +15,19 @@ public class ContactDao implements IObjectDao<Contact> {
     }
 
     public Task<Void> create(Contact contact) throws Exception {
-        return db.collection(collectionName).document(contact.getContactId()).set(ConvertContactToHashMap.getInstance().convert(contact));
+        return db.collection(InstanceDataBaseProvider.contactCollection).document(contact.getContactId()).set(ConvertContactToHashMap.getInstance().convert(contact));
     }
 
     public Task<Void> delete(String id) throws Exception {
-        return db.collection(collectionName).document(id).delete();
+        return db.collection(InstanceDataBaseProvider.contactCollection).document(id).delete();
     }
 
     public Task<Void> update(Contact contact) throws Exception {
-        return db.collection(collectionName).document(contact.getContactId()).set(ConvertContactToHashMap.getInstance().convert(contact));
+        return db.collection(InstanceDataBaseProvider.contactCollection).document(contact.getContactId()).set(ConvertContactToHashMap.getInstance().convert(contact));
     }
 
     public Task<DocumentSnapshot> get(String id) throws Exception {
-        return db.collection(collectionName).document(id).get();
+        return db.collection(InstanceDataBaseProvider.contactCollection).document(id).get();
     }
 
 }

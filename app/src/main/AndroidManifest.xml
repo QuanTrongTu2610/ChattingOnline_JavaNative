@@ -23,7 +23,6 @@
             android:name=".Activity.SignupBasicProfileActivity"
             android:windowSoftInputMode="adjustResize"></activity>
         <activity android:name=".Activity.ContactScreenActivity" />
-        <activity android:name=".Activity.NewMessageActivity" />
         <activity android:name=".Activity.ChattingScreenActivity">
 
         </activity>

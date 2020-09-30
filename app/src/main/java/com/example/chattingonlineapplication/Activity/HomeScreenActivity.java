@@ -41,6 +41,7 @@ import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -64,6 +65,7 @@ public class HomeScreenActivity extends AppCompatActivity {
     private MaterialSearchView searchViewLayoutUserMessage;
     private ArrayList<ConversationItem> lstUserMessage;
 
+    private FloatingActionButton flbtnNewMessage;
     private RecyclerView recyclerUser;
     private Toolbar toolbarHomeScreen;
     private DrawerLayout drawerLayout;
@@ -85,6 +87,14 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         requestContactPermission();
 
+
+        flbtnNewMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeScreenActivity.this, ContactScreenActivity.class);
+                startActivity(intent);
+            }
+        });
         try {
             new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
                     .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -156,6 +166,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         lstUserMessage = new ArrayList<>();
         searchViewLayoutUserMessage = findViewById(R.id.searchViewLayoutUserMessage);
         viewHeader = navigationView.getHeaderView(0);
+        flbtnNewMessage = findViewById(R.id.flbtnNewMessage);
 
         imgUserAvatar = viewHeader.findViewById(R.id.imgUserAvatar);
         tvNameOfUser = viewHeader.findViewById(R.id.tvNameOfUser);
@@ -256,14 +267,24 @@ public class HomeScreenActivity extends AppCompatActivity {
             Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null);
             while (cursor.moveToNext()) {
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                String mobile = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-                if (!mobile.equalsIgnoreCase(uid)) {
-                    if (mobile.contains("+")) {
-                        ph.setUserName(name);
-                        ph.setPhoneNumber(mobile);
-                        c.add(ph);
-                    }
+                String getMobile = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String newMobile = getMobile
+                        .replace(" ", "")
+                        .trim()
+                        .replaceAll("[^a-zA-Z0-9\\s+]", "");
+
+                StringBuilder finalMobile = new StringBuilder();
+                if (!newMobile.contains("+")) {
+                    finalMobile.append("+");
+                }
+                finalMobile.append(newMobile);
+
+                String uPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+                if (!finalMobile.toString().equalsIgnoreCase(uPhone)) {
+                    Log.i("phone", finalMobile.toString());
+                    ph.setUserName(name);
+                    ph.setPhoneNumber(finalMobile.toString());
+                    c.add(ph);
                 }
             }
             return null;
