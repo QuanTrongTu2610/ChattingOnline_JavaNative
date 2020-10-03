@@ -1,19 +1,17 @@
 package com.example.chattingonlineapplication.Activity;
 
-import android.annotation.TargetApi;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,22 +20,33 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
-import com.example.chattingonlineapplication.Models.Item.MessageItem;
+import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.ICallBackUserProvider;
+import com.example.chattingonlineapplication.Database.FireStore.UserDao;
+import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Socket.Client;
+import com.example.chattingonlineapplication.Socket.Server;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.squareup.picasso.Picasso;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChattingScreenActivity extends AppCompatActivity {
 
     private String TAG = "CLIENT ACTIVITY";
-    private List<MessageItem> lstMessage;
 
     private EditText edittext_chatbox;
     private ImageButton button_chatbox_send;
@@ -48,17 +57,48 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private TextView tvReceiverName;
     private TextView tvReceiverIsOnline;
 
+    private User user;
     private User userPartner;
+    private Server server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting_screen);
         reflection();
+        //Setting
         userPartner = (User) getIntent().getSerializableExtra("USER_FRIEND");
+        if (userPartner != null) {
+            Picasso.get().load(userPartner.getUserAvatarUrl()).into(imgReceiverAvatar);
+            tvReceiverName.setText(userPartner.getUserFirstName() + " " + userPartner.getUserLastName());
+            tvReceiverIsOnline.setText("User is online");
+        }
 
-        connectToUser(userPartner);
+        connectToUser();
 
+        button_chatbox_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String mess = edittext_chatbox.getText().toString().trim();
+                if (!mess.isEmpty()) {
+                    try {
+                        Client client = new Client(user.getUserIpAddress(),
+                                userPartner.getUserPort(),
+                                new Message("1",
+                                        user,
+                                        userPartner,
+                                        mess,
+                                        (new Timestamp(System.currentTimeMillis())).getTime(),
+                                        0,
+                                        "1"));
+                        client.execute();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                //sendMessage
+            }
+        });
 
         //Toolbar Customize
         setSupportActionBar(toolbarMessaging);
@@ -72,14 +112,12 @@ public class ChattingScreenActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(null);
 
-//        //ListMessage
-//        ListMessageAdapter listMessageAdapter = new ListMessageAdapter(this, lstMessage, FirebaseAuth.getInstance().getCurrentUser());
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setSmoothScrollbarEnabled(true);
         reyclerviewListMessage.setHasFixedSize(true);
         reyclerviewListMessage.setLayoutManager(linearLayoutManager);
-//        reyclerviewListMessage.setAdapter(listMessageAdapter);
 
 
         //Sending
@@ -116,9 +154,9 @@ public class ChattingScreenActivity extends AppCompatActivity {
         reyclerviewListMessage = findViewById(R.id.reyclerviewListMessage);
         imgReceiverAvatar = findViewById(R.id.imgReceiverAvatar);
         tvReceiverName = findViewById(R.id.tvReceiverName);
-        lstMessage = new ArrayList<>();
         button_chatbox_send = findViewById(R.id.button_chatbox_send);
         edittext_chatbox = findViewById(R.id.edittext_chatbox);
+        tvReceiverIsOnline = findViewById(R.id.tvReceiverIsOnline);
         userPartner = null;
     }
 
@@ -129,8 +167,8 @@ public class ChattingScreenActivity extends AppCompatActivity {
         return true;
     }
 
-    public void connectToUser(User user) {
-        AlertDialog alertDialog = LoadingDialog.getInstance().getDialog(this);
+    public void connectToUser() {
+        final AlertDialog alertDialog = LoadingDialog.getInstance().getDialog(this);
         alertDialog.setMessage("Connect to User Ip: "
                 + userPartner.getUserIpAddress()
                 + "\n"
@@ -138,7 +176,39 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 + userPartner.getUserPort());
         alertDialog.show();
 
-        Client client = new Client();
-        client.start();
+        final ExecutorService service = Executors.newSingleThreadExecutor();
+        service.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+                            userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .continueWith(new Continuation<DocumentSnapshot, Object>() {
+                                        @Override
+                                        public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
+                                            user = task.getResult().toObject(User.class);
+                                            Log.i("user", user.getUserFirstName());
+                                            Server server = new Server(user.getUserIpAddress(),
+                                                    user.getUserPort(),
+                                                    ChattingScreenActivity.this,
+                                                    ChattingScreenActivity.this,
+                                                    reyclerviewListMessage,
+                                                    new ArrayList<Message>(),
+                                                    new ListMessageAdapter(ChattingScreenActivity.this, new ArrayList<com.example.chattingonlineapplication.Models.Message>(),
+                                                            FirebaseAuth.getInstance().getCurrentUser()));
+                                            server.start();
+                                            alertDialog.dismiss();
+                                            service.shutdown();
+                                            return null;
+                                        }
+                                    });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
     }
+
 }

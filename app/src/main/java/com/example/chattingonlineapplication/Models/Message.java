@@ -2,16 +2,20 @@ package com.example.chattingonlineapplication.Models;
 
 public class Message {
     private String messageId;
-    private String messageFromUser;
-    private String messageContent;
+    private User userSender;
+    private User userReceiver;
+    private String content;
     private long messageDateCreated;
     private long messageSeenAt;
     private String conversationId;
 
-    public Message(String messageId, String messageFromUser, String messageContent, long messageDateCreated, long messageSeenAt, String conversationId) {
+    public Message() {}
+
+    public Message(String messageId, User userSender, User userReceiver, String content, long messageDateCreated, long messageSeenAt, String conversationId) {
         this.messageId = messageId;
-        this.messageFromUser = messageFromUser;
-        this.messageContent = messageContent;
+        this.userSender = userSender;
+        this.userReceiver = userReceiver;
+        this.content = content;
         this.messageDateCreated = messageDateCreated;
         this.messageSeenAt = messageSeenAt;
         this.conversationId = conversationId;
@@ -21,24 +25,32 @@ public class Message {
         return messageId;
     }
 
-    public void setMessageId(String mesageId) {
-        this.messageId = mesageId;
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
-    public String getMessageFromUser() {
-        return messageFromUser;
+    public User getUserSender() {
+        return userSender;
     }
 
-    public void setMessageFromUser(String messageFromUser) {
-        this.messageFromUser = messageFromUser;
+    public void setUserSender(User userSender) {
+        this.userSender = userSender;
     }
 
-    public String getMessageContent() {
-        return messageContent;
+    public User getUserReceiver() {
+        return userReceiver;
     }
 
-    public void setMessageContent(String messageContent) {
-        this.messageContent = messageContent;
+    public void setUserReceiver(User userReceiver) {
+        this.userReceiver = userReceiver;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public long getMessageDateCreated() {

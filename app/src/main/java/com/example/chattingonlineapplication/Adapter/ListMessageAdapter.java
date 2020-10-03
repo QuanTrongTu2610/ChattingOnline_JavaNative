@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.chattingonlineapplication.Models.Item.MessageItem;
+import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.R;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -25,11 +25,11 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
     //you
     private final static int MESSAGE_RECEIVER = 1;
 
-    private List<MessageItem> lstMessage;
+    private List<Message> lstMessage;
     private Context context;
     private FirebaseUser firebaseUser;
 
-    public ListMessageAdapter (Context context, List<MessageItem> lst, FirebaseUser firebaseUser) {
+    public ListMessageAdapter (Context context, List<Message> lst, FirebaseUser firebaseUser) {
         this.context = context;
         this.lstMessage = lst;
         this.firebaseUser = firebaseUser;
@@ -50,7 +50,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        MessageItem item = lstMessage.get(position);
+        Message item = lstMessage.get(position);
         switch (holder.getItemViewType()) {
             case MESSAGE_RECEIVER:
                 try {
@@ -78,7 +78,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         if (firebaseUser != null) {
-            if (firebaseUser.getUid().equals(lstMessage.get(position).getMessageFromUser())) {
+            if (firebaseUser.getUid().equals(lstMessage.get(position).getUserSender().getUserId())) {
                 return MESSAGE_RECEIVER;
             } else {
                 return MESSAGE_SENDER;
@@ -101,11 +101,11 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
             this.tvSelfMessageTime = itemView.findViewById(R.id.tvSelfMessageTime);
         }
 
-        public void bindingView(MessageItem m) throws Exception {
+        public void bindingView(Message m) throws Exception {
             //mock
             imgIsSeen.setVisibility(View.INVISIBLE);
             tvSelfMessageTime.setText(new Date(m.getMessageDateCreated() * 1000).toString());
-            tvSelfContent.setText(m.getMessageContent());
+            tvSelfContent.setText(m.getContent());
         }
     }
 
@@ -124,10 +124,10 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
             this.tvSenderMessageTime = itemView.findViewById(R.id.tvSenderMessageTime);
         }
 
-        public void bindingView(MessageItem m) {
+        public void bindingView(Message m) {
             imgSenderAvatar.setImageResource(R.drawable.ava);
-            tvSenderContent.setText(m.getMessageContent());
-            tvSenderName.setText(m.getMessageUserName());
+            tvSenderContent.setText(m.getContent());
+            tvSenderName.setText(m.getUserSender().getUserFirstName());
             tvSenderMessageTime.setText(new Date(m.getMessageDateCreated() * 1000).toString());
         }
     }

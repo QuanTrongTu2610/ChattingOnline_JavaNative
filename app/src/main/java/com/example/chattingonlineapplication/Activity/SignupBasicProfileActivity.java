@@ -227,6 +227,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                                         public void onSuccess(Void aVoid) {
                                             LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
                                             Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                             startActivity(intent);
                                         }
                                     });

@@ -15,20 +15,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IConversationListClickListener;
-import com.example.chattingonlineapplication.Models.Item.ConversationItem;
+import com.example.chattingonlineapplication.Models.Conversation;
+import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListConversationsAdapter extends RecyclerView.Adapter implements Filterable {
 
-    private ArrayList<ConversationItem> lstUserMessageClone;
-    private ArrayList<ConversationItem> lstUserMessage;
+    private ArrayList<Conversation> lstUserMessageClone;
+    private ArrayList<Conversation> lstUserMessage;
     private Context context;
 
-    public ListConversationsAdapter(Context context, ArrayList<ConversationItem> lstUserMessage) {
+    public ListConversationsAdapter(Context context, ArrayList<Conversation> lstUserMessage) {
         this.context = context;
         this.lstUserMessage = lstUserMessage;
         this.lstUserMessageClone = new ArrayList<>(lstUserMessage);
@@ -44,20 +47,18 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ConversationItem item = lstUserMessage.get(position);
+        Conversation item = lstUserMessage.get(position);
+        User user2 = item.getUser2();
         ViewHolder viewHolder = (ViewHolder) holder;
 
-
-//        Picasso.get().load(userMessage.getUser().getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-
-        viewHolder.imgUserAvatar.setImageResource(R.drawable.ava);
-        viewHolder.tvUserName.setText(item.getcReceiverName());
-        viewHolder.tvUserTimeSending.setText(item.getcDateSending());
-        viewHolder.tvUserCurrentMessage.setText(item.getcLastMessage().trim());
+        Picasso.get().load(user2.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        viewHolder.tvUserName.setText(user2.getUserFirstName() + " " + user2.getUserLastName());
+        viewHolder.tvUserTimeSending.setText(String.valueOf(new Date(item.getLastMessage().getMessageDateCreated())));
+        viewHolder.tvUserCurrentMessage.setText(item.getLastMessage().getContent());
         viewHolder.setiConversationListClickListener(new IConversationListClickListener() {
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
-                if(!isLongClick) {
+                if (!isLongClick) {
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
                     context.startActivity(intent);
                 }
@@ -75,13 +76,17 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                ArrayList<ConversationItem> filteredList = new ArrayList<>();
+                ArrayList<Conversation> filteredList = new ArrayList<>();
                 if (charSequence == null || charSequence.length() == 0) {
                     filteredList.addAll(lstUserMessageClone);
                 } else {
                     String filter = charSequence.toString().toLowerCase().trim();
-                    for (ConversationItem item : lstUserMessageClone) {
-                        if (item.getcReceiverName().toLowerCase().trim().contains(filter)) {
+                    for (Conversation item : lstUserMessageClone) {
+                        StringBuilder name = new StringBuilder();
+                        name.append(item.getUser2().getUserFirstName());
+                        name.append(" ");
+                        name.append(item.getUser2().getUserLastName());
+                        if (name.toString().toLowerCase().trim().contains(filter)) {
                             filteredList.add(item);
                         }
                     }
@@ -94,7 +99,7 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 lstUserMessage.clear();
-                lstUserMessage.addAll((ArrayList<ConversationItem>) filterResults.values);
+                lstUserMessage.addAll((ArrayList<Conversation>) filterResults.values);
                 notifyDataSetChanged();
             }
         };

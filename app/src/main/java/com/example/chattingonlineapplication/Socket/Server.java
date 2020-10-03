@@ -8,7 +8,7 @@ import android.util.Log;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
-import com.example.chattingonlineapplication.Models.Item.MessageItem;
+import com.example.chattingonlineapplication.Models.Message;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,17 +19,24 @@ import java.util.ArrayList;
 //ServerToReceive message
 public class Server extends Thread {
 
-    private String serverIpAddress;
-    private int socketPort;
+    //your IP
+    private String ownIp;
+
+    //Friend Port
+    private int ownPort;
     private Context context;
     private Activity activity;
     private RecyclerView messageView;
-    private ArrayList<MessageItem> lstMessage;
+    private ArrayList<Message> lstMessage;
     private ListMessageAdapter adapter;
 
-    public Server(String serverIpAddress, int socketPort, Context context, Activity activity, RecyclerView messageView, ArrayList<MessageItem> lstMessage, ListMessageAdapter adapter) {
-        this.serverIpAddress = serverIpAddress;
-        this.socketPort = socketPort;
+
+    private ServerSocket serverSocket;
+    private Socket connection;
+
+    public Server(String ownIp, int ownPort, Context context, Activity activity, RecyclerView messageView, ArrayList<Message> lstMessage, ListMessageAdapter adapter) {
+        this.ownIp = ownIp;
+        this.ownPort = ownPort;
         this.context = context;
         this.activity = activity;
         this.messageView = messageView;
@@ -40,15 +47,14 @@ public class Server extends Thread {
     @Override
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(socketPort);
-            Log.i("ServerSocket", "Server is staring at IP: " + serverIpAddress + " port: " + socketPort);
+            serverSocket = new ServerSocket(ownPort);
+            Log.i("ServerSocket", "Server is staring at IP: " + ownIp + " port: " + ownPort);
             serverSocket.setReuseAddress(true);
             while (!Thread.interrupted()) {
-                Socket connection = serverSocket.accept();
+                connection = serverSocket.accept();
                 //callReceiveMessage
                 ReceiveMessage receiveMessage = new ReceiveMessage();
                 receiveMessage.execute(connection);
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,6 +80,7 @@ public class Server extends Thread {
         @Override
         protected void onPostExecute(String s) {
             //show Message
+            //return message when server get
         }
     }
 }

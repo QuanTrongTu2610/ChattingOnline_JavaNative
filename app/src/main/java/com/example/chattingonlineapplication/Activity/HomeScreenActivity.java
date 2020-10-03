@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,21 +33,17 @@ import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Database.SQLite.ContactSQLiteHelper;
-import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.Models.PhoneContact;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +57,6 @@ public class HomeScreenActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
-    private ArrayList<ConversationItem> lstUserMessage;
 
     private FloatingActionButton flbtnNewMessage;
     private RecyclerView recyclerUser;
@@ -128,9 +121,7 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         //
         linearLayoutManager = new LinearLayoutManager(this);
-        listConversationsAdapter = new ListConversationsAdapter(this, lstUserMessage);
         recyclerUser.setLayoutManager(linearLayoutManager);
-        recyclerUser.setAdapter(listConversationsAdapter);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -163,7 +154,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         toolbarHomeScreen = findViewById(R.id.toolbarHomeScreen);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbarHomeScreen, R.string.open, R.string.close);
         recyclerUser = findViewById(R.id.recyclerUser);
-        lstUserMessage = new ArrayList<>();
         searchViewLayoutUserMessage = findViewById(R.id.searchViewLayoutUserMessage);
         viewHeader = navigationView.getHeaderView(0);
         flbtnNewMessage = findViewById(R.id.flbtnNewMessage);
@@ -191,7 +181,7 @@ public class HomeScreenActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                listConversationsAdapter.getFilter().filter(newText);
+
                 return false;
             }
         });
@@ -251,7 +241,6 @@ public class HomeScreenActivity extends AppCompatActivity {
                 break;
         }
     }
-
 
     class ContactInitialize extends AsyncTask<Void, Void, Void> {
 

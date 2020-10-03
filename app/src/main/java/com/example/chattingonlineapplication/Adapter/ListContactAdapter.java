@@ -49,7 +49,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Contact item = lstContact.get(position);
-        final User user = item.getUserFriend();
+        final User user = item.getConnectedUser();
         ViewHolder viewHolder = (ViewHolder) holder;
         Picasso.get().load(user.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
         viewHolder.tvUserName.setText(user.getUserFirstName() + " " + user.getUserLastName());
@@ -82,7 +82,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
                 } else {
                     String filter = charSequence.toString().toLowerCase().trim();
                     for (Contact item : lstClone) {
-                        User user = item.getUserFriend();
+                        User user = item.getConnectedUser();
                         if ((user.getUserFirstName() + " " + user.getUserLastName()).toLowerCase().contains(filter)) {
                             filteredList.add(item);
                         }

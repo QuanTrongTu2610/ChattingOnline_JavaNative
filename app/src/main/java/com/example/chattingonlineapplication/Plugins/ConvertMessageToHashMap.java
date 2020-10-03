@@ -17,13 +17,14 @@ public class ConvertMessageToHashMap implements ConvertObjectToHashMap<Message> 
 
     @Override
     public HashMap<String, Object> convert(Message object) {
-        HashMap<String, Object> hash = new HashMap<>();
-        hash.put("messageId", object.getMessageId());
-        hash.put("messageFromUser", object.getMessageFromUser());
-        hash.put("messageContent", object.getMessageContent());
-        hash.put("messageDateCreated", object.getMessageDateCreated());
-        hash.put("messageSeenAt", object.getMessageSeenAt());
-        hash.put("conversationId", object.getConversationId());
-        return hash;
+//        HashMap<String, Object> hash = new HashMap<>();
+//        hash.put("messageId", object.getMessageId());
+//        hash.put("messageFromUser", object.getMessageFromUser());
+//        hash.put("messageContent", object.getMessageContent());
+//        hash.put("messageDateCreated", object.getMessageDateCreated());
+//        hash.put("messageSeenAt", object.getMessageSeenAt());
+//        hash.put("conversationId", object.getConversationId());
+//        return hash;
+        return null;
     }
 }

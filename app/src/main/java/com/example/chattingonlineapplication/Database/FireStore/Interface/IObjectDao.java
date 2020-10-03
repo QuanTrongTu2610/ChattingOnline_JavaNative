@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Database.FireStore;
+package com.example.chattingonlineapplication.Database.FireStore.Interface;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 

@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Database.FireStore;
+package com.example.chattingonlineapplication.Database.FireStore.Interface;
 
 public interface InstanceDataBaseProvider {
     public static final String contactCollection = "contact";

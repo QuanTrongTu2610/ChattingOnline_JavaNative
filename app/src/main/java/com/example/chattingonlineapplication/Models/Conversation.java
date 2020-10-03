@@ -2,16 +2,18 @@ package com.example.chattingonlineapplication.Models;
 
 public class Conversation {
     private String conversationId;
-    private long conversationLastActive;
-    private String userId;
-    private String userId2;
+    private User user1;
+    private User user2;
+    private Message lastMessage;
 
-    public Conversation(String conversationId, long conversationLastActive, String userId, String userId2) {
+    public Conversation(String conversationId, User user1, User user2, Message lastMessage) {
         this.conversationId = conversationId;
-        this.conversationLastActive = conversationLastActive;
-        this.userId = userId;
-        this.userId2 = userId2;
+        this.user1 = user1;
+        this.user2 = user2;
+        this.lastMessage = lastMessage;
     }
+
+    public Conversation() {}
 
     public String getConversationId() {
         return conversationId;
@@ -21,27 +23,27 @@ public class Conversation {
         this.conversationId = conversationId;
     }
 
-    public long getConversationLastActive() {
-        return conversationLastActive;
+    public User getUser1() {
+        return user1;
     }
 
-    public void conversationLastActive(long conversationLastActive) {
-        this.conversationLastActive = conversationLastActive;
+    public void setUser1(User user1) {
+        this.user1 = user1;
     }
 
-    public String getUserId() {
-        return userId;
+    public User getUser2() {
+        return user2;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser2(User user2) {
+        this.user2 = user2;
     }
 
-    public String getUserId2() {
-        return userId2;
+    public Message getLastMessage() {
+        return lastMessage;
     }
 
-    public void setUserId2(String userId2) {
-        this.userId2 = userId2;
+    public void setLastMessage(Message lastMessage) {
+        this.lastMessage = lastMessage;
     }
 }

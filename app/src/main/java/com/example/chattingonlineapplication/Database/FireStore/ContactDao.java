@@ -1,5 +1,7 @@
 package com.example.chattingonlineapplication.Database.FireStore;
 
+import com.example.chattingonlineapplication.Database.FireStore.Interface.IObjectDao;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.InstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.Contact;
 import com.example.chattingonlineapplication.Plugins.ConvertContactToHashMap;
 import com.google.android.gms.tasks.Task;

@@ -2,16 +2,16 @@ package com.example.chattingonlineapplication.Models;
 
 public class Contact {
     private String contactId;
-    private String userId;
-    private User userFriend;
+    private User contactUser;
+    private User connectedUser;
 
     public Contact() {
     }
 
-    public Contact(String contactId, String userId, User userFriend) {
+    public Contact(String contactId, User contactUser, User connectedUser) {
         this.contactId = contactId;
-        this.userId = userId;
-        this.userFriend = userFriend;
+        this.contactUser = contactUser;
+        this.connectedUser = connectedUser;
     }
 
     public String getContactId() {
@@ -22,19 +22,19 @@ public class Contact {
         this.contactId = contactId;
     }
 
-    public String getUserId() {
-        return userId;
+    public User getContactUser() {
+        return contactUser;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setContactUser(User contactUser) {
+        this.contactUser = contactUser;
     }
 
-    public User getUserFriend() {
-        return userFriend;
+    public User getConnectedUser() {
+        return connectedUser;
     }
 
-    public void setUserFriend(User userFriend) {
-        this.userFriend = userFriend;
+    public void setConnectedUser(User connectedUser) {
+        this.connectedUser = connectedUser;
     }
 }
