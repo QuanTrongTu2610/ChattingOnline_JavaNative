@@ -75,7 +75,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbarRegisterInf);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        toolbarRegisterInf.setNavigationOnClickListener(new View.OnClickListener() {
+        toolbarRegisterInf.setNavigationOnClickListener(    new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
@@ -202,9 +202,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                         final String ipAddress = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
                         final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
                         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        ServerSocket s = new ServerSocket(0);
-                        final int port = s.getLocalPort();
-                        s.close();
+                        final int port = generatePort();
                         CompressImage.getInstance().compressImageToFireBase(uid, img, new ICompressImageFirebase<Uri>() {
                             @Override
                             public void compress(Uri uri) {
@@ -248,12 +246,10 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         return true;
     }
 
-    private void getDownloadUrl(StorageReference reference) {
-        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Log.i("hello", "uri" + uri);
-            }
-        });
+    public int generatePort() throws Exception {
+        ServerSocket s = new ServerSocket(0);
+        int port = s.getLocalPort();
+        s.close();
+        return port;
     }
 }

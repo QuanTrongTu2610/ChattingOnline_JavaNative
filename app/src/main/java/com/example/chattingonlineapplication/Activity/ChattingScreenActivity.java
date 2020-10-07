@@ -2,6 +2,7 @@ package com.example.chattingonlineapplication.Activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -20,10 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
-import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
-import com.example.chattingonlineapplication.Database.FireStore.Interface.ICallBackUserProvider;
-import com.example.chattingonlineapplication.Database.FireStore.UserDao;
-import com.example.chattingonlineapplication.Models.Message;
+import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
@@ -48,6 +47,8 @@ public class ChattingScreenActivity extends AppCompatActivity {
 
     private String TAG = "CLIENT ACTIVITY";
 
+    private Server server;
+    private Client client;
     private EditText edittext_chatbox;
     private ImageButton button_chatbox_send;
     private Toolbar toolbarMessaging;
@@ -57,24 +58,40 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private TextView tvReceiverName;
     private TextView tvReceiverIsOnline;
 
-    private User user;
-    private User userPartner;
-    private Server server;
+    private ListMessageAdapter listMessageAdapter;
+    private List<MessageItem> messageItems;
+    private User contactUser;
+    private User connectedUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting_screen);
         reflection();
+
         //Setting
-        userPartner = (User) getIntent().getSerializableExtra("USER_FRIEND");
-        if (userPartner != null) {
-            Picasso.get().load(userPartner.getUserAvatarUrl()).into(imgReceiverAvatar);
-            tvReceiverName.setText(userPartner.getUserFirstName() + " " + userPartner.getUserLastName());
-            tvReceiverIsOnline.setText("User is online");
+        try {
+            connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
+            contactUser = (User) getIntent().getSerializableExtra("USER_CONTACT");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         connectToUser();
+
+        if (connectedUser != null) {
+            Picasso.get().load(connectedUser.getUserAvatarUrl()).into(imgReceiverAvatar);
+            tvReceiverName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
+            tvReceiverIsOnline.setText("User is online");
+        }
+
+        listMessageAdapter = new ListMessageAdapter(this, messageItems, FirebaseAuth.getInstance().getCurrentUser());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setSmoothScrollbarEnabled(true);
+        reyclerviewListMessage.setHasFixedSize(true);
+        reyclerviewListMessage.setLayoutManager(linearLayoutManager);
+        reyclerviewListMessage.setAdapter(listMessageAdapter);
 
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,15 +99,14 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 String mess = edittext_chatbox.getText().toString().trim();
                 if (!mess.isEmpty()) {
                     try {
-                        Client client = new Client(user.getUserIpAddress(),
-                                userPartner.getUserPort(),
-                                new Message("1",
-                                        user,
-                                        userPartner,
-                                        mess,
-                                        (new Timestamp(System.currentTimeMillis())).getTime(),
-                                        0,
-                                        "1"));
+                        client = new Client(
+                                contactUser,
+                                connectedUser,
+                                messageItems,
+                                listMessageAdapter,
+                                reyclerviewListMessage,
+                                edittext_chatbox
+                        );
                         client.execute();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -106,19 +122,12 @@ public class ChattingScreenActivity extends AppCompatActivity {
         toolbarMessaging.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                server.interrupt();
                 finish();
             }
         });
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(null);
-
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setStackFromEnd(true);
-        linearLayoutManager.setSmoothScrollbarEnabled(true);
-        reyclerviewListMessage.setHasFixedSize(true);
-        reyclerviewListMessage.setLayoutManager(linearLayoutManager);
-
 
         //Sending
         edittext_chatbox.addTextChangedListener(new TextWatcher() {
@@ -141,12 +150,6 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 }
             }
         });
-        button_chatbox_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Send message
-            }
-        });
     }
 
     private void reflection() {
@@ -157,7 +160,9 @@ public class ChattingScreenActivity extends AppCompatActivity {
         button_chatbox_send = findViewById(R.id.button_chatbox_send);
         edittext_chatbox = findViewById(R.id.edittext_chatbox);
         tvReceiverIsOnline = findViewById(R.id.tvReceiverIsOnline);
-        userPartner = null;
+        connectedUser = null;
+        contactUser = null;
+        messageItems = new ArrayList<>();
     }
 
 
@@ -168,47 +173,8 @@ public class ChattingScreenActivity extends AppCompatActivity {
     }
 
     public void connectToUser() {
-        final AlertDialog alertDialog = LoadingDialog.getInstance().getDialog(this);
-        alertDialog.setMessage("Connect to User Ip: "
-                + userPartner.getUserIpAddress()
-                + "\n"
-                + "Port: "
-                + userPartner.getUserPort());
-        alertDialog.show();
-
-        final ExecutorService service = Executors.newSingleThreadExecutor();
-        service.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                            userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .continueWith(new Continuation<DocumentSnapshot, Object>() {
-                                        @Override
-                                        public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                                            user = task.getResult().toObject(User.class);
-                                            Log.i("user", user.getUserFirstName());
-                                            Server server = new Server(user.getUserIpAddress(),
-                                                    user.getUserPort(),
-                                                    ChattingScreenActivity.this,
-                                                    ChattingScreenActivity.this,
-                                                    reyclerviewListMessage,
-                                                    new ArrayList<Message>(),
-                                                    new ListMessageAdapter(ChattingScreenActivity.this, new ArrayList<com.example.chattingonlineapplication.Models.Message>(),
-                                                            FirebaseAuth.getInstance().getCurrentUser()));
-                                            server.start();
-                                            alertDialog.dismiss();
-                                            service.shutdown();
-                                            return null;
-                                        }
-                                    });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        );
+        server = new Server(contactUser, connectedUser, messageItems, listMessageAdapter, reyclerviewListMessage);
+        server.start();
     }
 
 }

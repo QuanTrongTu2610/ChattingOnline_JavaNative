@@ -1,57 +1,47 @@
 package com.example.chattingonlineapplication.Socket;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.EditText;
+
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
-import com.example.chattingonlineapplication.Models.Message;
+import com.example.chattingonlineapplication.Models.Item.MessageItem;
+import com.example.chattingonlineapplication.Models.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.List;
 
 //ServerToReceive message
 public class Server extends Thread {
 
-    //your IP
-    private String ownIp;
+    private User contactUser;
+    private User connectedUser;
+    private List<MessageItem> listMessageItems;
+    private ListMessageAdapter listMessageAdapter;
+    private RecyclerView recyclerView;
 
-    //Friend Port
-    private int ownPort;
-    private Context context;
-    private Activity activity;
-    private RecyclerView messageView;
-    private ArrayList<Message> lstMessage;
-    private ListMessageAdapter adapter;
-
-
-    private ServerSocket serverSocket;
-    private Socket connection;
-
-    public Server(String ownIp, int ownPort, Context context, Activity activity, RecyclerView messageView, ArrayList<Message> lstMessage, ListMessageAdapter adapter) {
-        this.ownIp = ownIp;
-        this.ownPort = ownPort;
-        this.context = context;
-        this.activity = activity;
-        this.messageView = messageView;
-        this.lstMessage = lstMessage;
-        this.adapter = adapter;
+    public Server(User contactUser, User connectedUser, List<MessageItem> listMessageItems, ListMessageAdapter listMessageAdapter, RecyclerView recyclerView) {
+        this.contactUser = contactUser;
+        this.connectedUser = connectedUser;
+        this.listMessageItems = listMessageItems;
+        this.listMessageAdapter = listMessageAdapter;
+        this.recyclerView = recyclerView;
     }
 
     @Override
     public void run() {
         try {
-            serverSocket = new ServerSocket(ownPort);
-            Log.i("ServerSocket", "Server is staring at IP: " + ownIp + " port: " + ownPort);
-            serverSocket.setReuseAddress(true);
+            ServerSocket serverSocket = new ServerSocket(contactUser.getUserPort());
+            Log.i("ServerSocket", "Server is staring at IP: " + contactUser.getUserIpAddress() + " port: " + contactUser.getUserPort());
             while (!Thread.interrupted()) {
-                connection = serverSocket.accept();
+                Socket connection = serverSocket.accept();
                 //callReceiveMessage
                 ReceiveMessage receiveMessage = new ReceiveMessage();
                 receiveMessage.execute(connection);
@@ -63,14 +53,13 @@ public class Server extends Thread {
 
 
     public class ReceiveMessage extends AsyncTask<Socket, Void, String> {
+        String text;
 
         @Override
         protected String doInBackground(Socket... sockets) {
-            String text = "";
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(sockets[0].getInputStream()));
                 text = br.readLine();
-                Log.i("Message Receive", "Received => " + text);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -81,6 +70,8 @@ public class Server extends Thread {
         protected void onPostExecute(String s) {
             //show Message
             //return message when server get
+            listMessageItems.add(new MessageItem("1", connectedUser, contactUser, s, (new Timestamp(System.currentTimeMillis())).getTime(), 0, "1"));
+            recyclerView.getAdapter().notifyDataSetChanged();
         }
     }
 }

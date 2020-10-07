@@ -1,11 +1,13 @@
 package com.example.chattingonlineapplication.Activity;
 
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
@@ -16,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ea.async.Async;
 import com.example.chattingonlineapplication.Adapter.ListContactAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.ContactDao;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
@@ -23,6 +26,7 @@ import com.example.chattingonlineapplication.Database.FireStore.Interface.Instan
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Database.SQLite.ContactSQLiteHelper;
 import com.example.chattingonlineapplication.Models.Contact;
+import com.example.chattingonlineapplication.Models.Item.ContactItem;
 import com.example.chattingonlineapplication.Models.PhoneContact;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
@@ -36,12 +40,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 public class ContactScreenActivity extends AppCompatActivity {
 
+    private List<ContactItem> contactItems = new ArrayList<>();
     private RecyclerView recyclerContacts;
     private MaterialSearchView searchContactViewLayout;
     private Toolbar toolbarContact;
@@ -54,7 +62,11 @@ public class ContactScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact_screen);
         reflection();
 
+        initializeAdapter();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        ListContactAdapter adapter = new ListContactAdapter(this, contactItems);
+        recyclerContacts.setAdapter(adapter);
         recyclerContacts.setLayoutManager(linearLayoutManager);
 
         setSupportActionBar(toolbarContact);
@@ -74,8 +86,11 @@ public class ContactScreenActivity extends AppCompatActivity {
             }
         });
 
-        //UpdateContact
-        new contactExecution().execute();
+        try {
+            updateContact();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reflection() {
@@ -109,164 +124,177 @@ public class ContactScreenActivity extends AppCompatActivity {
         });
     }
 
-    class contactExecution extends AsyncTask<Void, Void, ExecutorService> {
-
-        @Override
-        protected ExecutorService doInBackground(Void... voids) {
-            ExecutorService ex = Executors.newSingleThreadExecutor();
-            try {
-                ex.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                            userDao.get(FirebaseAuth.getInstance()
-                                    .getCurrentUser().getUid())
-                                    .continueWith(new Continuation<DocumentSnapshot, Object>() {
-                                        @Override
-                                        public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                                            ContactSQLiteHelper c = new ContactSQLiteHelper(ContactScreenActivity.this);
-                                            List<PhoneContact> fromContact = c.getAll();
-                                            ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-                                            final User contactUser = task.getResult().toObject(User.class);
-
-                                            for (int i = 0; i < fromContact.size(); i++) {
-                                                final PhoneContact phoneContact = fromContact.get(i);
-                                                executorService.execute(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            FireStoreOpenConnection
-                                                                    .getInstance()
-                                                                    .getAccessToFireStore()
-                                                                    .collection(InstanceDataBaseProvider.userCollection)
-                                                                    .whereEqualTo("userPhoneNumber", phoneContact.getPhoneNumber())
-                                                                    .get()
-                                                                    //Get User From DataBase
-                                                                    .continueWith(new Continuation<QuerySnapshot, Object>() {
-                                                                        @Override
-                                                                        public Object then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                                                                            List<DocumentSnapshot> document = task.getResult().getDocuments();
-                                                                            if (!document.isEmpty()) {
-                                                                                final User connectedUser = document.get(0).toObject(User.class);
-                                                                                try {
-                                                                                    FireStoreOpenConnection
-                                                                                            .getInstance()
-                                                                                            .getAccessToFireStore()
-                                                                                            .collection(InstanceDataBaseProvider.contactCollection)
-                                                                                            .whereEqualTo("contactUser", contactUser)
-                                                                                            .get()
-                                                                                            .continueWith(new Continuation<QuerySnapshot, Object>() {
-                                                                                                @Override
-                                                                                                public Object then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                                                                                                    List<Contact> listQuerySnap = task.getResult().toObjects(Contact.class);
-                                                                                                    if (listQuerySnap.size() == 0) {
-                                                                                                        return false;
-                                                                                                    }
-                                                                                                    for (int j = 0; j < listQuerySnap.size(); j++) {
-                                                                                                        if (listQuerySnap.get(j).getConnectedUser().getUserId().equals(connectedUser.getUserId())) {
-                                                                                                            return true;
-                                                                                                        }
-                                                                                                    }
-                                                                                                    return false;
-                                                                                                }
-                                                                                            })
-                                                                                            .continueWith(new Continuation<Object, Object>() {
-                                                                                                @Override
-                                                                                                public Object then(@NonNull Task<Object> task) throws Exception {
-                                                                                                    if (!(boolean) task.getResult()) {
-                                                                                                        createContact(contactUser, connectedUser);
-                                                                                                    }
-                                                                                                    return null;
-                                                                                                }
-                                                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                                        @Override
-                                                                                        public void onFailure(@NonNull Exception e) {
-                                                                                            e.printStackTrace();
+    private void updateContact() throws Exception {
+        ContactSQLiteHelper c = new ContactSQLiteHelper(ContactScreenActivity.this);
+        List<PhoneContact> fromContact = c.getAll();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        //
+        for (int i = 0; i < fromContact.size(); i++) {
+            final PhoneContact phoneContact = fromContact.get(i);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+                        userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        final User contactUser = documentSnapshot.toObject(User.class);
+                                        try {
+                                            FireStoreOpenConnection
+                                                    .getInstance()
+                                                    .getAccessToFireStore()
+                                                    .collection(InstanceDataBaseProvider.userCollection)
+                                                    .whereEqualTo("userPhoneNumber", phoneContact.getPhoneNumber())
+                                                    .get()
+                                                    //Get User From DataBase
+                                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                            List<DocumentSnapshot> document = queryDocumentSnapshots.getDocuments();
+                                                            if (!document.isEmpty()) {
+                                                                //getConnectedUser
+                                                                final User connectedUser = document.get(0).toObject(User.class);
+                                                                try {
+                                                                    //Check If Contact exist
+                                                                    FireStoreOpenConnection
+                                                                            .getInstance()
+                                                                            .getAccessToFireStore()
+                                                                            .collection(InstanceDataBaseProvider.contactCollection)
+                                                                            .whereEqualTo("contactUserId", FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                                            .get()
+                                                                            .continueWith(new Continuation<QuerySnapshot, Object>() {
+                                                                                @Override
+                                                                                public Object then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                                                                                    List<Contact> listQuerySnap = task.getResult().toObjects(Contact.class);
+                                                                                    if (listQuerySnap.size() == 0) {
+                                                                                        return false;
+                                                                                    }
+                                                                                    for (int j = 0; j < listQuerySnap.size(); j++) {
+                                                                                        if (listQuerySnap.get(j).getConnectedUserId().equals(connectedUser.getUserId())) {
+                                                                                            return true;
                                                                                         }
-                                                                                    });
-                                                                                } catch (Exception e) {
-                                                                                    e.printStackTrace();
+                                                                                    }
+                                                                                    return false;
                                                                                 }
-                                                                            }
-                                                                            return null;
-                                                                        }
-                                                                    });
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
+                                                                            })
+                                                                            .continueWith(new Continuation<Object, Object>() {
+                                                                                @Override
+                                                                                public Object then(@NonNull Task<Object> task) throws Exception {
+                                                                                    if (!(boolean) task.getResult()) {
+                                                                                        Contact contact = createContact(contactUser.getUserId(), connectedUser.getUserId());
+                                                                                        updateAdapter(contact.getContactId(), contactUser, connectedUser);
+                                                                                    }
+                                                                                    return null;
+                                                                                }
+                                                                            });
+                                                                } catch (Exception e) {
+                                                                    e.printStackTrace();
+                                                                }
+                                                            }
                                                         }
-                                                    }
-                                                });
+                                                    });
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        executorService.shutdown();
+    }
+
+    private void updateAdapter(String contactId, User contactUser, User connectedUser) throws Exception {
+        contactItems.add(new ContactItem(contactId, contactUser, connectedUser));
+        recyclerContacts.getAdapter().notifyDataSetChanged();
+    }
+
+    private String autoGenId() throws IOException {
+        return FireStoreOpenConnection.getInstance().getAccessToFireStore()
+                .collection(InstanceDataBaseProvider.contactCollection)
+                .document()
+                .getId();
+    }
+
+    private Contact createContact(String contactUserId, String connectedUserId) throws Exception {
+        Contact contact = new Contact();
+        contact.setContactId(autoGenId());
+        contact.setContactUserId(contactUserId);
+        contact.setConnectedUserId(connectedUserId);
+        ContactDao contactDao = new ContactDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+        contactDao.create(contact);
+        return contact;
+    }
+
+
+    private void initializeAdapter() {
+        try {
+            final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+            userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .continueWith(new Continuation<DocumentSnapshot, Object>() {
+                        @Override
+                        public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
+                            //ContactUser
+                            final User contactUser = task.getResult().toObject(User.class);
+
+                            FireStoreOpenConnection
+                                    .getInstance()
+                                    .getAccessToFireStore()
+                                    .collection(InstanceDataBaseProvider.contactCollection)
+                                    .whereEqualTo("contactUserId", contactUser.getUserId())
+                                    .get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            final List<Contact> contacts = queryDocumentSnapshots.toObjects(Contact.class);
+                                            Log.i("Size", contacts.size() + " ");
+                                            for (int i = 0; i < contacts.size(); i++) {
+                                                final String userId = contacts.get(i).getConnectedUserId();
+                                                final String contactId = contacts.get(i).getContactId();
+                                                try {
+                                                    userDao.get(userId)
+                                                            .continueWith(new Continuation<DocumentSnapshot, Object>() {
+                                                                @Override
+                                                                public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
+                                                                    User connectedUser = task.getResult().toObject(User.class);
+                                                                    if (connectedUser != null) {
+                                                                        contactItems.add(new ContactItem(contactId, contactUser, connectedUser));
+                                                                        recyclerContacts.getAdapter().notifyDataSetChanged();
+                                                                    }
+                                                                    return null;
+                                                                }
+                                                            });
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
-                                            executorService.shutdown();
-                                            return null;
                                         }
                                     });
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            return null;
                         }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    class contactExecution extends AsyncTask<Void, Void, Void> {
 
-            return ex;
+        //Add Contact to Database
+        @Override
+        protected Void doInBackground(Void... voids) {
+            return null;
         }
 
         @Override
-        protected void onPostExecute(ExecutorService executorService) {
-            super.onPostExecute(executorService);
-            executorService.shutdown();
-
-            try {
-                UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-                userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .continueWith(new Continuation<DocumentSnapshot, Object>() {
-                            @Override
-                            public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                                User contactUser = task.getResult().toObject(User.class);
-                                FireStoreOpenConnection
-                                        .getInstance()
-                                        .getAccessToFireStore()
-                                        .collection(InstanceDataBaseProvider.contactCollection)
-                                        .whereEqualTo("contactUser", contactUser)
-                                        .get()
-                                        .continueWith(new Continuation<QuerySnapshot, Object>() {
-                                            @Override
-                                            public Object then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                                                progressContactLoader.setVisibility(View.GONE);
-                                                //Use notifyDataSetInsert
-                                                List<Contact> contacts = task.getResult().toObjects(Contact.class);
-                                                ListContactAdapter adapter = new ListContactAdapter(ContactScreenActivity.this, contacts);
-                                                recyclerContacts.setAdapter(adapter);
-                                                return null;
-                                            }
-                                        });
-                                return null;
-                            }
-                        });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
         }
 
-        private String autoGenId() throws IOException {
-            return FireStoreOpenConnection.getInstance().getAccessToFireStore()
-                    .collection(InstanceDataBaseProvider.contactCollection)
-                    .document()
-                    .getId();
-        }
-
-        private void createContact(User contactUser, User connectedUser) throws Exception {
-            Contact contact = new Contact();
-            contact.setContactId(autoGenId());
-            contact.setContactUser(contactUser);
-            contact.setConnectedUser(connectedUser);
-            ContactDao contactDao = new ContactDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-            contactDao.create(contact);
-        }
     }
 }

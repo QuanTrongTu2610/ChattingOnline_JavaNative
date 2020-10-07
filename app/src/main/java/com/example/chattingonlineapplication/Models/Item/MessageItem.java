@@ -1,20 +1,20 @@
-package com.example.chattingonlineapplication.Models;
+package com.example.chattingonlineapplication.Models.Item;
 
-public class Message {
+import com.example.chattingonlineapplication.Models.User;
+
+public class MessageItem {
     private String messageId;
-    private String userSenderId;
-    private String userReceiverId;
+    private User userSender;
+    private User userReceiver;
     private String content;
     private long messageDateCreated;
     private long messageSeenAt;
     private String conversationId;
 
-    public Message() {}
-
-    public Message(String messageId, String userSenderId, String userReceiverId, String content, long messageDateCreated, long messageSeenAt, String conversationId) {
+    public MessageItem(String messageId, User userSender, User userReceiver, String content, long messageDateCreated, long messageSeenAt, String conversationId) {
         this.messageId = messageId;
-        this.userSenderId = userSenderId;
-        this.userReceiverId = userReceiverId;
+        this.userSender = userSender;
+        this.userReceiver = userReceiver;
         this.content = content;
         this.messageDateCreated = messageDateCreated;
         this.messageSeenAt = messageSeenAt;
@@ -29,20 +29,20 @@ public class Message {
         this.messageId = messageId;
     }
 
-    public String getUserSenderId() {
-        return userSenderId;
+    public User getUserSender() {
+        return userSender;
     }
 
-    public void setUserSenderId(String userSenderId) {
-        this.userSenderId = userSenderId;
+    public void setUserSender(User userSender) {
+        this.userSender = userSender;
     }
 
-    public String getUserReceiverId() {
-        return userReceiverId;
+    public User getUserReceiver() {
+        return userReceiver;
     }
 
-    public void setUserReceiverId(String userReceiverId) {
-        this.userReceiverId = userReceiverId;
+    public void setUserReceiver(User userReceiver) {
+        this.userReceiver = userReceiver;
     }
 
     public String getContent() {

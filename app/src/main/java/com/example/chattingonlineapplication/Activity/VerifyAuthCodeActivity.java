@@ -17,12 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.InstanceProvider;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -31,8 +29,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.net.ServerSocket;
 import java.sql.Timestamp;
 
 public class VerifyAuthCodeActivity extends AppCompatActivity {
@@ -120,7 +118,6 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                             ;
                         } else {
                             try {
-                                final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                                 final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                                 final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
 
@@ -133,7 +130,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                             Intent intent = new Intent(VerifyAuthCodeActivity.this, SignupBasicProfileActivity.class);
                                             startActivity(intent);
                                         } else {
-                                            //Tothe main Screen but should update the Ip address.
+                                            //To the main Screen but should update the Ip address.
                                             WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                                             String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
                                             FireStoreOpenConnection.getInstance().getAccessToFireStore()
@@ -162,4 +159,10 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                 });
     }
 
+    public int generatePort() throws Exception {
+        ServerSocket s = new ServerSocket(0);
+        int port = s.getLocalPort();
+        s.close();
+        return port;
+    }
 }

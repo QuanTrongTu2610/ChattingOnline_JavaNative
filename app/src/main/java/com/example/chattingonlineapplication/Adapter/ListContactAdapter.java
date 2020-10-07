@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IContactListClickListener;
 import com.example.chattingonlineapplication.Models.Contact;
+import com.example.chattingonlineapplication.Models.Item.ContactItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
@@ -29,11 +30,11 @@ import java.util.List;
 
 public class ListContactAdapter extends RecyclerView.Adapter implements Filterable {
 
-    private List<Contact> lstClone;
-    private List<Contact> lstContact;
+    private List<ContactItem> lstClone;
+    private List<ContactItem> lstContact;
     private Context context;
 
-    public ListContactAdapter(Context context, List<Contact> lst) {
+    public ListContactAdapter(Context context, List<ContactItem> lst) {
         this.context = context;
         this.lstContact = lst;
         this.lstClone = new ArrayList<>(lstContact);
@@ -48,18 +49,20 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Contact item = lstContact.get(position);
-        final User user = item.getConnectedUser();
+        ContactItem item = lstContact.get(position);
+        final User connectedUser = item.getConnectedUser();
+        final User contactUser = item.getContactUser();
         ViewHolder viewHolder = (ViewHolder) holder;
-        Picasso.get().load(user.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-        viewHolder.tvUserName.setText(user.getUserFirstName() + " " + user.getUserLastName());
-        viewHolder.tvUserFriendPhoneNumber.setText(user.getUserPhoneNumber());
+        Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        viewHolder.tvUserName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
+        viewHolder.tvUserFriendPhoneNumber.setText(connectedUser.getUserPhoneNumber());
         viewHolder.setEventClickListener(new IContactListClickListener() {
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
                 if (!isLongClick) {
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
-                    intent.putExtra("USER_FRIEND", user);
+                    intent.putExtra("USER_CONNECTED", connectedUser);
+                    intent.putExtra("USER_CONTACT", contactUser);
                     context.startActivity(intent);
                 }
             }
@@ -76,12 +79,12 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                List<Contact> filteredList = new ArrayList<>();
+                List<ContactItem> filteredList = new ArrayList<>();
                 if (charSequence.length() == 0 || charSequence == null) {
                     filteredList.addAll(lstClone);
                 } else {
                     String filter = charSequence.toString().toLowerCase().trim();
-                    for (Contact item : lstClone) {
+                    for (ContactItem item : lstClone) {
                         User user = item.getConnectedUser();
                         if ((user.getUserFirstName() + " " + user.getUserLastName()).toLowerCase().contains(filter)) {
                             filteredList.add(item);
@@ -97,7 +100,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 lstContact.clear();
-                lstContact.addAll((ArrayList<Contact>) filterResults.values);
+                lstContact.addAll((ArrayList<ContactItem>) filterResults.values);
                 notifyDataSetChanged();
             }
         };

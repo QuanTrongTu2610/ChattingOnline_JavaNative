@@ -1,6 +1,7 @@
 package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.R;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.sql.Date;
 import java.util.List;
@@ -25,11 +28,11 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
     //you
     private final static int MESSAGE_RECEIVER = 1;
 
-    private List<Message> lstMessage;
+    private List<MessageItem> lstMessage;
     private Context context;
     private FirebaseUser firebaseUser;
 
-    public ListMessageAdapter (Context context, List<Message> lst, FirebaseUser firebaseUser) {
+    public ListMessageAdapter(Context context, List<MessageItem> lst, FirebaseUser firebaseUser) {
         this.context = context;
         this.lstMessage = lst;
         this.firebaseUser = firebaseUser;
@@ -50,7 +53,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Message item = lstMessage.get(position);
+        MessageItem item = lstMessage.get(position);
         switch (holder.getItemViewType()) {
             case MESSAGE_RECEIVER:
                 try {
@@ -78,7 +81,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         if (firebaseUser != null) {
-            if (firebaseUser.getUid().equals(lstMessage.get(position).getUserSender().getUserId())) {
+            if (firebaseUser.getUid().equalsIgnoreCase(lstMessage.get(position).getUserSender().getUserId())) {
                 return MESSAGE_RECEIVER;
             } else {
                 return MESSAGE_SENDER;
@@ -101,10 +104,10 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
             this.tvSelfMessageTime = itemView.findViewById(R.id.tvSelfMessageTime);
         }
 
-        public void bindingView(Message m) throws Exception {
+        public void bindingView(MessageItem m) throws Exception {
             //mock
             imgIsSeen.setVisibility(View.INVISIBLE);
-            tvSelfMessageTime.setText(new Date(m.getMessageDateCreated() * 1000).toString());
+            tvSelfMessageTime.setText(new Date(m.getMessageDateCreated()).toString());
             tvSelfContent.setText(m.getContent());
         }
     }
@@ -124,11 +127,11 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
             this.tvSenderMessageTime = itemView.findViewById(R.id.tvSenderMessageTime);
         }
 
-        public void bindingView(Message m) {
-            imgSenderAvatar.setImageResource(R.drawable.ava);
+        public void bindingView(MessageItem m) {
+            Picasso.get().load(m.getUserSender().getUserAvatarUrl()).into(imgSenderAvatar);
             tvSenderContent.setText(m.getContent());
-            tvSenderName.setText(m.getUserSender().getUserFirstName());
-            tvSenderMessageTime.setText(new Date(m.getMessageDateCreated() * 1000).toString());
+            tvSenderName.setText(m.getUserSender().getUserFirstName() + " " + m.getUserSender().getUserLastName());
+            tvSenderMessageTime.setText(new Date(m.getMessageDateCreated()).toString());
         }
     }
 }
