@@ -14,6 +14,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class CompressImage {
     private ByteArrayOutputStream byteArrayOutputStream;
@@ -46,7 +47,11 @@ public class CompressImage {
                         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                icompressImageFirebase.compress(uri);
+                                try {
+                                    icompressImageFirebase.compress(uri);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override

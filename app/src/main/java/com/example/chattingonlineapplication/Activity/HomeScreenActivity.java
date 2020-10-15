@@ -88,21 +88,6 @@ public class HomeScreenActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        try {
-            new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
-                    .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            User user = documentSnapshot.toObject(User.class);
-                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
-                            tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
-                            tvUserPhoneNumber.setText(user.getUserPhoneNumber());
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         setSupportActionBar(toolbarHomeScreen);
         ActionBar actionBar = getSupportActionBar();
@@ -147,6 +132,26 @@ public class HomeScreenActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
+                    .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            User user = documentSnapshot.toObject(User.class);
+                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
+                            tvUserPhoneNumber.setText(user.getUserPhoneNumber());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void reflection() {
         drawerLayout = findViewById(R.id.drawerLayout);

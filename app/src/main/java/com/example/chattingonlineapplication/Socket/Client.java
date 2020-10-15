@@ -22,8 +22,6 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Client extends AsyncTask<Void, Void, String> {
-
-
     private User contactUser;
     private User connectedUser;
 
@@ -31,7 +29,7 @@ public class Client extends AsyncTask<Void, Void, String> {
     private List<MessageItem> listMessageItems;
     private ListMessageAdapter listMessageAdapter;
     private RecyclerView recyclerView;
-    private EditText text;
+    private EditText EditText;
 
     public Client(User contactUser, User connectedUser, List<MessageItem> listMessageItems, ListMessageAdapter listMessageAdapter, RecyclerView recyclerView, EditText text) {
         this.contactUser = contactUser;
@@ -39,16 +37,23 @@ public class Client extends AsyncTask<Void, Void, String> {
         this.listMessageItems = listMessageItems;
         this.listMessageAdapter = listMessageAdapter;
         this.recyclerView = recyclerView;
-        this.text = text;
+        this.EditText = text;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
-        String message = text.getText().toString().trim();
+        String message = EditText.getText().toString().trim();
         try {
-            //Create Socket
 //            Socket client = new Socket(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-            Socket client = new Socket("192.168.137.1", 7800);
+            Socket client = new Socket("172.20.10.13", 7800);
+
+            Log.i("Client", "[ Client connect to " +
+                    "Ip: " +
+                    connectedUser.getUserIpAddress() +
+                    "Port: " +
+                    connectedUser.getUserPort() +
+                    "]"
+            );
 
             OutputStream outputStream = client.getOutputStream();
             PrintWriter printWriter = new PrintWriter(outputStream);
@@ -67,9 +72,9 @@ public class Client extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-
         listMessageItems.add(new MessageItem("1", contactUser, connectedUser, s, (new Timestamp(System.currentTimeMillis())).getTime(), 0, "1"));
         recyclerView.getAdapter().notifyDataSetChanged();
-        text.setText("");
+        EditText.setText("");
+        recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
     }
 }

@@ -12,15 +12,20 @@ import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.User;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 //ServerToReceive message
 public class Server extends Thread {
 
+    private ServerSocket serverSocket;
     private User contactUser;
     private User connectedUser;
     private List<MessageItem> listMessageItems;
@@ -35,22 +40,34 @@ public class Server extends Thread {
         this.recyclerView = recyclerView;
     }
 
+
     @Override
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(contactUser.getUserPort());
-            Log.i("ServerSocket", "Server is staring at IP: " + contactUser.getUserIpAddress() + " port: " + contactUser.getUserPort());
-            while (!Thread.interrupted()) {
-                Socket connection = serverSocket.accept();
+            serverSocket = new ServerSocket(contactUser.getUserPort());
+            Log.i("ServerSocket", "[" +
+                    "Server is staring at IP: " +
+                    contactUser.getUserIpAddress() +
+                    " port: " + contactUser.getUserPort() +
+                    "]");
+            while (!this.isInterrupted()) {
                 //callReceiveMessage
+                Socket connection = serverSocket.accept();
                 ReceiveMessage receiveMessage = new ReceiveMessage();
                 receiveMessage.execute(connection);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 
+    public void shutdownServer() {
+        try {
+            serverSocket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public class ReceiveMessage extends AsyncTask<Socket, Void, String> {
         String text;
@@ -70,8 +87,9 @@ public class Server extends Thread {
         protected void onPostExecute(String s) {
             //show Message
             //return message when server get
-            listMessageItems.add(new MessageItem("1", connectedUser, contactUser, s, (new Timestamp(System.currentTimeMillis())).getTime(), 0, "1"));
+            listMessageItems.add(new MessageItem("1", connectedUser, contactUser, s, new Date().getTime(), 0, "1"));
             recyclerView.getAdapter().notifyDataSetChanged();
+            recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
         }
     }
 }

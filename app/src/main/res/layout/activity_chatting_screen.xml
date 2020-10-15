@@ -52,6 +52,7 @@
         android:id="@+id/reyclerviewListMessage"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:padding="5dp"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -63,50 +64,43 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/clWhite"
+        android:elevation="5dp"
         android:foregroundGravity="center"
         android:minHeight="48dp"
         android:orientation="horizontal"
-        android:paddingStart="10dp"
+        android:padding="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/enter_message_shape"
+
+        <EditText
+            android:id="@+id/edittext_chatbox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_edit_text_chatting"
+            android:hint="Type Message"
+            android:maxLines="6"
+            android:padding="10dp"
+            android:textCursorDrawable="@null"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/button_chatbox_send"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/edittext_chatbox"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:hint="Type Message"
-                android:maxLines="6"
-                android:padding="10dp"
-                android:textCursorDrawable="@null"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageButton
             android:id="@+id/button_chatbox_send"
             android:layout_width="48dp"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:layout_gravity="center"
-            android:background="?android:selectableItemBackgroundBorderless"
+            android:background="@android:color/transparent"
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_baseline_send_24"
+            android:tint="@color/clLightBlue"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

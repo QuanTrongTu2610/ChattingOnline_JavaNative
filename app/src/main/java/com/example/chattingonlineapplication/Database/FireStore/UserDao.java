@@ -10,7 +10,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class UserDao implements IObjectDao<User> {
-    private User user;
     private FirebaseFirestore db;
 
     public UserDao(FirebaseFirestore firestore) {

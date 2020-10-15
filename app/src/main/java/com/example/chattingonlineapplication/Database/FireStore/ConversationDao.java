@@ -9,8 +9,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ConversationDao implements IObjectDao<Conversation> {
-    private Conversation conversation;
     private FirebaseFirestore db;
+
+    public ConversationDao(FirebaseFirestore db) {
+        this.db = db;
+    }
 
     @Override
     public Task<Void> create(Conversation conversation) throws Exception {

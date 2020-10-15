@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
@@ -63,6 +64,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
                 }
                 break;
             case MESSAGE_SENDER:
+                Log.i("Position", position + "");
                 try {
                     ((SenderViewHolder) holder).bindingView(item);
                 } catch (Exception e) {
@@ -91,6 +93,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
     }
 
 
+    //Receiver
     protected class ReceiverViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imgIsSeen;
@@ -112,25 +115,20 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    protected class SenderViewHolder extends RecyclerView.ViewHolder {
 
-        private CircleImageView imgSenderAvatar;
+    //Sender
+    protected class SenderViewHolder extends RecyclerView.ViewHolder {
         private TextView tvSenderContent;
-        private TextView tvSenderName;
         private TextView tvSenderMessageTime;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.imgSenderAvatar = itemView.findViewById(R.id.imgSenderAvatar);
             this.tvSenderContent = itemView.findViewById(R.id.tvSenderContent);
-            this.tvSenderName = itemView.findViewById(R.id.tvSenderName);
             this.tvSenderMessageTime = itemView.findViewById(R.id.tvSenderMessageTime);
         }
 
         public void bindingView(MessageItem m) {
-            Picasso.get().load(m.getUserSender().getUserAvatarUrl()).into(imgSenderAvatar);
             tvSenderContent.setText(m.getContent());
-            tvSenderName.setText(m.getUserSender().getUserFirstName() + " " + m.getUserSender().getUserLastName());
             tvSenderMessageTime.setText(new Date(m.getMessageDateCreated()).toString());
         }
     }

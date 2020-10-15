@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,10 +24,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListSettingOptionsUserProfileAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.InstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.Item.SettingUserProfileItemModel;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.CompressImage;
+import com.example.chattingonlineapplication.Plugins.Interface.ICompressImageFirebase;
+import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -36,6 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,13 +120,6 @@ public class UserProfileActivity extends AppCompatActivity {
         }
 
 
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-
-            }
-        });
-
         setSupportActionBar(toolBarUserProfile);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -183,15 +184,45 @@ public class UserProfileActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK && isOpenCam) {
                 img = (Bitmap) data.getExtras().get("data");
                 imgUserAvatar.setImageBitmap(img);
+                updateUserImage(img);
             } else {
                 Uri image = data.getData();
                 try {
-                    img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                    img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image);
                     imgUserAvatar.setImageBitmap(img);
+                    updateUserImage(img);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    private  void updateUserImage(Bitmap bitmap) {
+        CompressImage
+                .getInstance().
+                compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, new ICompressImageFirebase<Uri>() {
+                    @Override
+                    public void compress(Uri uri) throws IOException {
+                        FireStoreOpenConnection
+                                .getInstance()
+                                .getAccessToFireStore()
+                                .collection(InstanceDataBaseProvider.userCollection)
+                                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .update("userAvatarUrl", uri.toString())
+                                .addOnCanceledListener(new OnCanceledListener() {
+                                    @Override
+                                    public void onCanceled() {
+                                        Log.i("Update Url", "Success");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.i("Update Url", "Fail");
+                                    }
+                                });
+                    }
+                });
     }
 }

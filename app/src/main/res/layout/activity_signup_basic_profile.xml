@@ -101,7 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="Enter your name and add a profile picture"
-        android:textColor="@color/clLightGray"
+        android:textColor="@color/clGray"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutContainerInf"></TextView>
