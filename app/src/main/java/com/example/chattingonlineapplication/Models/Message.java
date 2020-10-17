@@ -7,18 +7,16 @@ public class Message {
     private String content;
     private long messageDateCreated;
     private long messageSeenAt;
-    private String conversationId;
 
     public Message() {}
 
-    public Message(String messageId, String userSenderId, String userReceiverId, String content, long messageDateCreated, long messageSeenAt, String conversationId) {
+    public Message(String messageId, String userSenderId, String userReceiverId, String content, long messageDateCreated, long messageSeenAt) {
         this.messageId = messageId;
         this.userSenderId = userSenderId;
         this.userReceiverId = userReceiverId;
         this.content = content;
         this.messageDateCreated = messageDateCreated;
         this.messageSeenAt = messageSeenAt;
-        this.conversationId = conversationId;
     }
 
     public String getMessageId() {
@@ -67,13 +65,5 @@ public class Message {
 
     public void setMessageSeenAt(long messageSeenAt) {
         this.messageSeenAt = messageSeenAt;
-    }
-
-    public String getConversationId() {
-        return conversationId;
-    }
-
-    public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
     }
 }

@@ -1,49 +1,53 @@
 package com.example.chattingonlineapplication.Models;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Conversation {
     private String conversationId;
-    private String user1;
-    private String user2;
-    private Message lastMessage;
+    private String conversationTitle;
+    private ArrayList<String> participants;
+    private Map<String,Message> messages;
 
     public Conversation() {}
 
-    public Conversation(String conversationId, String user1, String user2, Message lastMessage) {
+    public Conversation(String conversationId, String conversationTitle, ArrayList<String> participants, Map<String, Message> messages) {
         this.conversationId = conversationId;
-        this.user1 = user1;
-        this.user2 = user2;
-        this.lastMessage = lastMessage;
-    }
-
-    public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
-    }
-
-    public void setUser1(String user1) {
-        this.user1 = user1;
-    }
-
-    public void setUser2(String user2) {
-        this.user2 = user2;
-    }
-
-    public void setLastMessage(Message lastMessage) {
-        this.lastMessage = lastMessage;
+        this.conversationTitle = conversationTitle;
+        this.participants = participants;
+        this.messages = messages;
     }
 
     public String getConversationId() {
         return conversationId;
     }
 
-    public String getUser1() {
-        return user1;
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
     }
 
-    public String getUser2() {
-        return user2;
+    public String getConversationTitle() {
+        return conversationTitle;
     }
 
-    public Message getLastMessage() {
-        return lastMessage;
+    public void setConversationTitle(String conversationTitle) {
+        this.conversationTitle = conversationTitle;
+    }
+
+    public ArrayList<String> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(ArrayList<String> participants) {
+        this.participants = participants;
+    }
+
+    public Map<String, Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Map<String, Message> messages) {
+        this.messages = messages;
     }
 }

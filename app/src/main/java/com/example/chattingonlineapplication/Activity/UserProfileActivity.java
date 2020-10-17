@@ -182,23 +182,32 @@ public class UserProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GALLERY_ACCESS) {
             if (resultCode == RESULT_OK && isOpenCam) {
-                img = (Bitmap) data.getExtras().get("data");
-                imgUserAvatar.setImageBitmap(img);
-                updateUserImage(img);
-            } else {
-                Uri image = data.getData();
-                try {
-                    img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image);
-                    imgUserAvatar.setImageBitmap(img);
-                    updateUserImage(img);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (data != null) {
+                    try {
+                        img = (Bitmap) data.getExtras().get("data");
+                        imgUserAvatar.setImageBitmap(img);
+                        updateUserImage(img);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            } else {
+                if (data != null) {
+                    try {
+                        Uri image = data.getData();
+                        img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image);
+                        imgUserAvatar.setImageBitmap(img);
+                        updateUserImage(img);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
     }
 
-    private  void updateUserImage(Bitmap bitmap) {
+    private void updateUserImage(Bitmap bitmap) {
         CompressImage
                 .getInstance().
                 compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, new ICompressImageFirebase<Uri>() {

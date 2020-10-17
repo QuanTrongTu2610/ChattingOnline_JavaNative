@@ -26,7 +26,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="25dp"
+            android:layout_marginLeft="30dp"
             android:orientation="vertical">
 
             <TextView
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:text="Quan Trong Tu"
                 android:textColor="@color/clWhite"
-                android:textSize="18sp"></TextView>
+                android:textSize="16sp"></TextView>
 
             <TextView
                 android:id="@+id/tvReceiverIsOnline"
@@ -44,7 +44,7 @@
                 android:maxLines="1"
                 android:text="This information has not been developed"
                 android:textColor="@color/clWhite"
-                android:textSize="14sp"></TextView>
+                android:textSize="12sp"></TextView>
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -61,10 +61,10 @@
     <!-- A horizontal line between the chatbox and RecyclerView -->
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="@color/clWhite"
         android:elevation="5dp"
         android:foregroundGravity="center"
@@ -75,35 +75,40 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-
-        <EditText
-            android:id="@+id/edittext_chatbox"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_edit_text_chatting"
-            android:hint="Type Message"
-            android:maxLines="6"
-            android:padding="10dp"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="wrap_content">
 
+            <EditText
+                android:id="@+id/edittext_chatbox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edit_text_chatting"
+                android:hint="Type Message"
+                android:maxLines="6"
+                android:padding="10dp"
+                android:textCursorDrawable="@null"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/button_chatbox_send"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/button_chatbox_send"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:background="@android:color/transparent"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/ic_baseline_send_24"
-            android:tint="@color/clLightBlue"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/button_chatbox_send"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_baseline_send_24"
+                android:tint="@color/clLightBlue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -206,20 +206,20 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                         CompressImage.getInstance().compressImageToFireBase(uid, img, new ICompressImageFirebase<Uri>() {
                             @Override
                             public void compress(Uri uri) {
-                                User user = new User(
-                                        uid,
-                                        userFirstName,
-                                        userLastName,
-                                        FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(),
-                                        uri.toString(),
-                                        "none",
-                                        0,
-                                        new Timestamp(System.currentTimeMillis()).getTime(),
-                                        true,
-                                        ipAddress,
-                                        port
-                                );
                                 try {
+                                    User user = new User(
+                                            uid,
+                                            userFirstName,
+                                            userLastName,
+                                            FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(),
+                                            uri.toString(),
+                                            "none",
+                                            0,
+                                            new Timestamp(System.currentTimeMillis()).getTime(),
+                                            true,
+                                            ipAddress,
+                                            port
+                                    );
                                     userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {

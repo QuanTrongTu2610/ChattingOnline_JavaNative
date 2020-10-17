@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
+import com.example.chattingonlineapplication.Plugins.TimeConverter;
 import com.example.chattingonlineapplication.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -110,7 +112,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
         public void bindingView(MessageItem m) throws Exception {
             //mock
             imgIsSeen.setVisibility(View.INVISIBLE);
-            tvSelfMessageTime.setText(new Date(m.getMessageDateCreated()).toString());
+            tvSelfMessageTime.setText(TimeConverter.getInstance().convertToMinutes(new Date(m.getMessageDateCreated())));
             tvSelfContent.setText(m.getContent());
         }
     }
@@ -129,7 +131,7 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
 
         public void bindingView(MessageItem m) {
             tvSenderContent.setText(m.getContent());
-            tvSenderMessageTime.setText(new Date(m.getMessageDateCreated()).toString());
+            tvSenderMessageTime.setText(TimeConverter.getInstance().convertToMinutes(new Date(m.getMessageDateCreated())));
         }
     }
 }

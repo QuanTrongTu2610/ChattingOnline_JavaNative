@@ -20,8 +20,9 @@ public class ConvertConversationToHashMap implements ConvertObjectToHashMap<Conv
     public HashMap<String, Object> convert(Conversation object) {
         HashMap<String, Object> hash = new HashMap<>();
         hash.put("conversationId", object.getConversationId());
-        hash.put("user1", object.getUser1());
-        hash.put("user2", object.getUser2());
+        hash.put("conversationTitle", object.getConversationTitle());
+        hash.put("participants", object.getParticipants());
+        hash.put("messages", object.getMessages());
         return hash;
     }
 }

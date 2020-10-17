@@ -6,8 +6,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.concurrent.Callable;
 
-public class ClientRequestHandler extends Thread {
+public class ClientRequestHandler implements Callable<String> {
 
     private Socket socket;
 
@@ -15,18 +16,23 @@ public class ClientRequestHandler extends Thread {
         this.socket = socket;
     }
 
+
     @Override
-    public void run() {
-        super.run();
-        String text;
+    public String call() {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                text = br.readLine();
-                Log.i("Message", text);
-                //update Message to List
+                StringBuilder stringBuilder = new StringBuilder();
+                String message;
+                while ((message = br.readLine()) != null) {
+                    stringBuilder.append("\n" + message);
+                }
+
+                Log.i("Message Receive:", stringBuilder.toString());
+                return stringBuilder.toString().trim();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return null;
     }
 
 }
