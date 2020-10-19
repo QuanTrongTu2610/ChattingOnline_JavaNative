@@ -6,11 +6,13 @@ public class ContactItem {
     private String contactId;
     private User contactUser;
     private User connectedUser;
+    private String conversationId;
 
-    public ContactItem(String contactId, User contactUser, User connectedUser) {
+    public ContactItem(String contactId, User contactUser, User connectedUser, String conversationId) {
         this.contactId = contactId;
         this.contactUser = contactUser;
         this.connectedUser = connectedUser;
+        this.conversationId = conversationId;
     }
 
     public String getContactId() {
@@ -35,5 +37,13 @@ public class ContactItem {
 
     public void setConnectedUser(User connectedUser) {
         this.connectedUser = connectedUser;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
     }
 }

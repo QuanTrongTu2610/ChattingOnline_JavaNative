@@ -1,10 +1,8 @@
 package com.example.chattingonlineapplication.Activity;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -18,35 +16,33 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
+import com.example.chattingonlineapplication.Database.FireStore.ConversationDao;
+import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
+import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
 import com.example.chattingonlineapplication.R;
-import com.example.chattingonlineapplication.Socket.Client;
-import com.example.chattingonlineapplication.Socket.Server;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChattingScreenActivity extends AppCompatActivity {
 
     private String TAG = "CLIENT ACTIVITY";
-    private boolean isCreateConversation;
-
     private TCPServer tcpServer;
     private TCPClient tcpClient;
-
     private EditText edittext_chatbox;
     private ImageButton button_chatbox_send;
     private Toolbar toolbarMessaging;
@@ -55,12 +51,12 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private CircleImageView imgReceiverAvatar;
     private TextView tvReceiverName;
     private TextView tvReceiverIsOnline;
-
     private ListMessageAdapter listMessageAdapter;
     private List<MessageItem> listMessageItems;
     private User contactUser;
     private User connectedUser;
-
+    private String contactId;
+    private String conversationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +67,14 @@ public class ChattingScreenActivity extends AppCompatActivity {
         try {
             contactUser = (User) getIntent().getSerializableExtra("USER_CONTACT");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
+            contactId = (String) getIntent().getStringExtra("CONTACT_ID");
+            conversationId = (String) getIntent().getStringExtra("CONVERSATION_ID");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         //CreateServer
-        openServer();
+        openServerAndClient();
 
         //Initialize ToolBar
         setupToolBar();
@@ -88,18 +86,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    tcpClient = new TCPClient(contactUser,
-                            connectedUser,
-                            edittext_chatbox.getText().toString().trim(),
-                            listMessageItems,
-                            reyclerviewListMessage,
-                            edittext_chatbox
-                    );
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                tcpClient.execute();
+                tcpClient.sendingMessage(edittext_chatbox.getText().toString().trim());
             }
         });
 
@@ -145,7 +132,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         toolbarMessaging.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (tcpClient != null) tcpClient.cancel(true);
+                if (tcpClient != null) tcpClient.onDestroy();
                 if (tcpClient != null) tcpServer.onDestroy();
                 finish();
             }
@@ -184,10 +171,82 @@ public class ChattingScreenActivity extends AppCompatActivity {
     }
 
     //Create Server
-    public void openServer() {
+    private void openServerAndClient() {
         try {
-            Log.i("Create Server", "Created");
-            tcpServer = new TCPServer(contactUser, connectedUser, listMessageItems, reyclerviewListMessage);
+            tcpServer = new TCPServer(contactUser);
+            tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
+                @Override
+                public void updateItem(final String message) {
+                    //Update Message to Database: TODO
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listMessageItems.add(
+                                    new MessageItem("1",
+                                            connectedUser,
+                                            contactUser,
+                                            message,
+                                            (new Timestamp(System.currentTimeMillis())).getTime(),
+                                            0,
+                                            "1")
+                            );
+                            reyclerviewListMessage.getAdapter().notifyDataSetChanged();
+                            edittext_chatbox.setText("");
+                            reyclerviewListMessage.scrollToPosition(reyclerviewListMessage.getAdapter().getItemCount() - 1);
+                        }
+                    });
+                }
+            });
+
+            tcpClient = new TCPClient(connectedUser);
+            tcpClient.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
+                //Update Message to Database: TODO
+                @Override
+                public void updateItem(final String message) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listMessageItems.add(
+                                    new MessageItem("1",
+                                            contactUser,
+                                            connectedUser,
+                                            message,
+                                            (new Timestamp(System.currentTimeMillis())).getTime(),
+                                            0,
+                                            "1")
+                            );
+                            reyclerviewListMessage.getAdapter().notifyDataSetChanged();
+                            edittext_chatbox.setText("");
+                            reyclerviewListMessage.scrollToPosition(reyclerviewListMessage.getAdapter().getItemCount() - 1);
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String autoGenString() {
+        byte[] array = new byte[7]; // length is bounded by 7
+        new Random().nextBytes(array);
+        return new String(array, Charset.forName("UTF-8"));
+    }
+
+
+
+    //ToDo
+    private void addMessage(User userSender, User userReceiver, String message) {
+        Message m = new Message(autoGenString(),
+                userSender.getUserId(),
+                userReceiver.getUserId(),
+                message,
+                new Timestamp(System.currentTimeMillis()).getTime(),
+                0
+        );
+
+        try {
+            ConversationDao conversationDao = new ConversationDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
         } catch (Exception e) {
             e.printStackTrace();
         }

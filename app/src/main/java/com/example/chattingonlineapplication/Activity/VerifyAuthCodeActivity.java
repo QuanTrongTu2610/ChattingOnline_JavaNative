@@ -9,12 +9,11 @@ import android.text.TextWatcher;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.widget.EditText;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
@@ -29,22 +28,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.net.ServerSocket;
-import java.sql.Timestamp;
 
 public class VerifyAuthCodeActivity extends AppCompatActivity {
 
     private EditText editTextOTP;
-
     private AlertDialog alertDialog;
-
     private boolean isVerifiedSuccess = false;
     private String codeSent;
     private FirebaseAuth mAuth;
     private String phoneNumber;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
-
 
     @Override
     protected void onResume() {
@@ -98,7 +92,6 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
         }
     }
 
-
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -134,7 +127,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                             WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                                             String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
                                             FireStoreOpenConnection.getInstance().getAccessToFireStore()
-                                                    .collection("user")
+                                                    .collection(IInstanceDataBaseProvider.userCollection)
                                                     .document(user.getUserId())
                                                     .update("userIpAddress", ip)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -159,10 +152,4 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                 });
     }
 
-    public int generatePort() throws Exception {
-        ServerSocket s = new ServerSocket(0);
-        int port = s.getLocalPort();
-        s.close();
-        return port;
-    }
 }

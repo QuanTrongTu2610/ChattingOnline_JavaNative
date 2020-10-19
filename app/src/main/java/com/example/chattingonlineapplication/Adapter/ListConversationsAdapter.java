@@ -9,21 +9,16 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IConversationListClickListener;
-import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.Date;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListConversationsAdapter extends RecyclerView.Adapter implements Filterable {

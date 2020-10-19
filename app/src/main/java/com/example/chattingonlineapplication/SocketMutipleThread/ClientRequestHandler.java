@@ -1,39 +1,40 @@
 package com.example.chattingonlineapplication.SocketMutipleThread;
 
-import android.util.Log;
+import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.concurrent.Callable;
 
-public class ClientRequestHandler implements Callable<String> {
+class ClientRequestHandler extends Thread {
 
     private Socket socket;
+    private IUpDateChatViewRecycler iUpDateChatViewRecycler;
 
-    public ClientRequestHandler(Socket socket) {
+    public ClientRequestHandler(Socket socket, IUpDateChatViewRecycler i) {
         this.socket = socket;
+        this.iUpDateChatViewRecycler = i;
     }
-
 
     @Override
-    public String call() {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String message;
-                while ((message = br.readLine()) != null) {
-                    stringBuilder.append("\n" + message);
-                }
-
-                Log.i("Message Receive:", stringBuilder.toString());
-                return stringBuilder.toString().trim();
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void run() {
+        String text;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            StringBuilder stringBuilder = new StringBuilder();
+            String message;
+            while ((message = br.readLine()) != null) {
+                stringBuilder.append("\n" + message);
             }
-            return null;
+            text = stringBuilder.toString().trim();
+            //Callback event
+            if (iUpDateChatViewRecycler != null) {
+                iUpDateChatViewRecycler.updateItem(text);
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 }
 

@@ -15,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -28,7 +27,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
@@ -43,30 +41,23 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeScreenActivity extends AppCompatActivity {
 
-
     private View viewHeader;
-
     private LinearLayoutManager linearLayoutManager;
     private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
-
     private FloatingActionButton flbtnNewMessage;
     private RecyclerView recyclerUser;
     private Toolbar toolbarHomeScreen;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-
     private static final int PERMISSION_READCONTACT = 300;
-
     //InDrawer
     private CircleImageView imgUserAvatar;
     private TextView tvNameOfUser;
@@ -131,7 +122,6 @@ public class HomeScreenActivity extends AppCompatActivity {
             }
         });
     }
-
 
     @Override
     protected void onResume() {
@@ -201,7 +191,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private void requestContactPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

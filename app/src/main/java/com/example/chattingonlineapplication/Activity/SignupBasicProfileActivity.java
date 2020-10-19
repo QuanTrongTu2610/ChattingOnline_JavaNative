@@ -75,7 +75,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbarRegisterInf);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        toolbarRegisterInf.setNavigationOnClickListener(    new View.OnClickListener() {
+        toolbarRegisterInf.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
@@ -152,7 +152,6 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
             }
         });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

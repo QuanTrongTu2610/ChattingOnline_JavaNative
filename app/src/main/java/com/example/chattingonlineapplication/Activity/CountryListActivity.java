@@ -4,17 +4,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.Adapter.ListCountryAdapter;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
 import java.util.ArrayList;
 
 public class CountryListActivity extends AppCompatActivity {

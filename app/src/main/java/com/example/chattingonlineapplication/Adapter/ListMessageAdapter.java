@@ -7,30 +7,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
-import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Plugins.TimeConverter;
 import com.example.chattingonlineapplication.R;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.squareup.picasso.Picasso;
-
 import java.sql.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListMessageAdapter extends RecyclerView.Adapter {
-
     private final static int MESSAGE_SENDER = 2;
-    //you
     private final static int MESSAGE_RECEIVER = 1;
-
     private List<MessageItem> lstMessage;
     private Context context;
     private FirebaseUser firebaseUser;
@@ -94,14 +82,11 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
         return 0;
     }
 
-
     //Receiver
     protected class ReceiverViewHolder extends RecyclerView.ViewHolder {
-
         public ImageView imgIsSeen;
         public TextView tvSelfMessageTime;
         public TextView tvSelfContent;
-
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
             this.imgIsSeen = itemView.findViewById(R.id.imgIsSeen);
@@ -116,7 +101,6 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
             tvSelfContent.setText(m.getContent());
         }
     }
-
 
     //Sender
     protected class SenderViewHolder extends RecyclerView.ViewHolder {

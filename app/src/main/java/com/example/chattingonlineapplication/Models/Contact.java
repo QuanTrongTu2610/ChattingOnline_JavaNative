@@ -4,14 +4,16 @@ public class Contact {
     private String contactId;
     private String contactUserId;
     private String connectedUserId;
+    private String conversationId;
 
     public Contact() {
     }
 
-    public Contact(String contactId, String contactUserId, String connectedUserId) {
+    public Contact(String contactId, String contactUserId, String connectedUserId, String conversationId) {
         this.contactId = contactId;
         this.contactUserId = contactUserId;
         this.connectedUserId = connectedUserId;
+        this.conversationId = conversationId;
     }
 
     public String getContactId() {
@@ -36,5 +38,13 @@ public class Contact {
 
     public void setConnectedUserId(String connectedUserId) {
         this.connectedUserId = connectedUserId;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
     }
 }

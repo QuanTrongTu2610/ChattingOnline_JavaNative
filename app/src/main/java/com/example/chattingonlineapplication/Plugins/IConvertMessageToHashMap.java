@@ -1,16 +1,16 @@
 package com.example.chattingonlineapplication.Plugins;
 
 import com.example.chattingonlineapplication.Models.Message;
-import com.example.chattingonlineapplication.Plugins.Interface.ConvertObjectToHashMap;
+import com.example.chattingonlineapplication.Plugins.Interface.IConvertObjectToHashMap;
 
 import java.util.HashMap;
 
-public class ConvertMessageToHashMap implements ConvertObjectToHashMap<Message> {
-    private static ConvertMessageToHashMap instance;
+public class IConvertMessageToHashMap implements IConvertObjectToHashMap<Message> {
+    private static IConvertMessageToHashMap instance;
 
-    public static ConvertMessageToHashMap getInstance() {
+    public static IConvertMessageToHashMap getInstance() {
         if (instance == null) {
-            instance = new ConvertMessageToHashMap();
+            instance = new IConvertMessageToHashMap();
         }
         return instance;
     }

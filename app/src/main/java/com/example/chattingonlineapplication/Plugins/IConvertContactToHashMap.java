@@ -1,17 +1,17 @@
 package com.example.chattingonlineapplication.Plugins;
 
 import com.example.chattingonlineapplication.Models.Contact;
-import com.example.chattingonlineapplication.Plugins.Interface.ConvertObjectToHashMap;
+import com.example.chattingonlineapplication.Plugins.Interface.IConvertObjectToHashMap;
 
 
 import java.util.HashMap;
 
-public class ConvertContactToHashMap implements ConvertObjectToHashMap<Contact> {
-    private static ConvertContactToHashMap instance;
+public class IConvertContactToHashMap implements IConvertObjectToHashMap<Contact> {
+    private static IConvertContactToHashMap instance;
 
-    public static ConvertContactToHashMap getInstance() {
+    public static IConvertContactToHashMap getInstance() {
         if (instance == null) {
-            instance = new ConvertContactToHashMap();
+            instance = new IConvertContactToHashMap();
         }
         return instance;
     }
@@ -22,6 +22,7 @@ public class ConvertContactToHashMap implements ConvertObjectToHashMap<Contact> 
         hash.put("contactId", object.getContactId());
         hash.put("contactUserId", object.getContactUserId());
         hash.put("connectedUserId", object.getConnectedUserId());
+        hash.put("conversationId", object.getConversationId());
         return hash;
     }
 }

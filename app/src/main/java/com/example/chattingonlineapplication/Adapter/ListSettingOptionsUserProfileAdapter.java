@@ -7,14 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.HandleEvent.IProfileSettingItemClickListener;
 import com.example.chattingonlineapplication.Models.Item.SettingUserProfileItemModel;
 import com.example.chattingonlineapplication.R;
-
 import java.util.List;
 
 public class ListSettingOptionsUserProfileAdapter extends RecyclerView.Adapter {

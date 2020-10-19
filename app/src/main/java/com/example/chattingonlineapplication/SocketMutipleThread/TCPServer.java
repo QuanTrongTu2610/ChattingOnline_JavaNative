@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,44 +16,48 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 
 //ServerToReceive message
 public class TCPServer {
 
-    private ReceiveMessage receiveMessage;
+    private ClientRequestHandler clientRequestHandler;
     private Socket connection;
     private ServerSocket serverSocket;
-
     private boolean stop;
     private User contactUser;
-    private User connectedUser;
-    private List<MessageItem> listMessageItems;
-    private RecyclerView recyclerView;
-    private Thread socketServer;
+    private Thread socketServerThread;
+    private IUpDateChatViewRecycler iUpDateChatViewRecycler;
 
-    public TCPServer(User contactUser, User connectedUser, List<MessageItem> listMessageItems, RecyclerView recyclerView) {
+    public void registerUpdateChatViewRecyclerEvent(IUpDateChatViewRecycler i) {
+        Log.i("Server Creating...", contactUser.getUserIpAddress());
+        this.iUpDateChatViewRecycler = i;
+    }
+
+    public TCPServer(User contactUser) {
         this.contactUser = contactUser;
-        this.connectedUser = connectedUser;
-        this.listMessageItems = listMessageItems;
-        this.recyclerView = recyclerView;
-
-        socketServer = new SocketServerThread();
-        socketServer.start();
+        socketServerThread = new SocketServerThread();
+        socketServerThread.start();
     }
 
     public void onDestroy() {
         if (serverSocket != null) {
             try {
+                serverSocket.close();
                 stop = true;
-                socketServer.interrupt();
+                socketServerThread.interrupt();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    //Separate Thread to run Server
+
+    //Separate Thread to run Server----------------------------------------------------------------------
     class SocketServerThread extends Thread {
         @Override
         public void run() {
@@ -62,46 +67,17 @@ public class TCPServer {
                     while (stop == false) {
                         //callReceiveMessage
                         connection = serverSocket.accept();
-                        connection.getReuseAddress();
                         Log.i("Connection", connection.toString());
                         //Async to handle each user's request.
-                        if (connection != null)
-                            receiveMessage = (ReceiveMessage) new ReceiveMessage().execute(connection);
+                        if (connection != null && connection.isConnected()) {
+                            clientRequestHandler = new ClientRequestHandler(connection, iUpDateChatViewRecycler);
+                            clientRequestHandler.start();
+                        }
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    class ReceiveMessage extends AsyncTask<Socket, Void, String> {
-        String text;
-        @Override
-        protected String doInBackground(Socket... sockets) {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(sockets[0].getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String message;
-                while ((message = br.readLine()) != null) {
-                    stringBuilder.append("\n" + message);
-                }
-                text = stringBuilder.toString().trim();
-                br.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return text;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            //show Message
-            //return message when server get
-            listMessageItems.add(new MessageItem("1", connectedUser, contactUser, s, new Date().getTime(), 0, "1"));
-            recyclerView.getAdapter().notifyDataSetChanged();
-            recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
         }
     }
 }

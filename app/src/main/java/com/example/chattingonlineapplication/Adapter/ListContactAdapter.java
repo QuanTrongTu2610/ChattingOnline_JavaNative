@@ -2,8 +2,6 @@ package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +16,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IContactListClickListener;
-import com.example.chattingonlineapplication.Models.Contact;
 import com.example.chattingonlineapplication.Models.Item.ContactItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ListContactAdapter extends RecyclerView.Adapter implements Filterable {
@@ -49,7 +45,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ContactItem item = lstContact.get(position);
+        final ContactItem item = lstContact.get(position);
         final User connectedUser = item.getConnectedUser();
         final User contactUser = item.getContactUser();
         ViewHolder viewHolder = (ViewHolder) holder;
@@ -63,6 +59,8 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
                     intent.putExtra("USER_CONTACT", contactUser);
+                    intent.putExtra("CONTACT_ID", item.getContactId());
+                    intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }
             }
@@ -121,7 +119,6 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
             this.tvUserName = itemView.findViewById(R.id.tvUserName);
             this.tvUserFriendPhoneNumber = itemView.findViewById(R.id.tvUserFriendPhoneNumber);
             this.containerContact = itemView.findViewById(R.id.containerContact);
-
             this.containerContact.setOnClickListener(this);
             this.containerContact.setOnLongClickListener(this);
         }

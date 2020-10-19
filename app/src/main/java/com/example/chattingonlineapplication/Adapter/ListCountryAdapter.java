@@ -11,14 +11,11 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.HandleEvent.ICountryListClickListener;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,7 +99,6 @@ public class ListCountryAdapter extends RecyclerView.Adapter implements Filterab
             }
         };
     }
-
 
     protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
