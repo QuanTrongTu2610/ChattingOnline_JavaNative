@@ -1,14 +1,9 @@
 package com.example.chattingonlineapplication.Activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ProgressBar;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.content.AsyncTaskLoader;
-import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Input.CountryInformationInput;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;

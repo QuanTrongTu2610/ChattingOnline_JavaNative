@@ -29,30 +29,38 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Database.SQLite.ContactSQLiteHelper;
+import com.example.chattingonlineapplication.Models.Conversation;
+import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.Models.PhoneContact;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeScreenActivity extends AppCompatActivity {
 
+    private ArrayList<ConversationItem> items;
     private View viewHeader;
     private LinearLayoutManager linearLayoutManager;
     private ListConversationsAdapter listConversationsAdapter;
     private MaterialSearchView searchViewLayoutUserMessage;
     private FloatingActionButton flbtnNewMessage;
-    private RecyclerView recyclerUser;
+    private RecyclerView recyclerConversation;
     private Toolbar toolbarHomeScreen;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -68,9 +76,17 @@ public class HomeScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
         reflection();
+        //Setup tool bar
+        setUpToolBar();
+        setUpConversationListView();
 
+        try {
+            getUserInformation();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //Request Contact Permission
         requestContactPermission();
-
 
         flbtnNewMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,10 +96,6 @@ public class HomeScreenActivity extends AppCompatActivity {
             }
         });
 
-        setSupportActionBar(toolbarHomeScreen);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_black_24);
 
         if (imgUserAvatar != null) {
             imgUserAvatar.setOnClickListener(new View.OnClickListener() {
@@ -95,10 +107,7 @@ public class HomeScreenActivity extends AppCompatActivity {
             });
         }
 
-        //
-        linearLayoutManager = new LinearLayoutManager(this);
-        recyclerUser.setLayoutManager(linearLayoutManager);
-
+        //Menu Drawer View
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -148,14 +157,14 @@ public class HomeScreenActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigationView);
         toolbarHomeScreen = findViewById(R.id.toolbarHomeScreen);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbarHomeScreen, R.string.open, R.string.close);
-        recyclerUser = findViewById(R.id.recyclerUser);
+        recyclerConversation = findViewById(R.id.recyclerConversation);
         searchViewLayoutUserMessage = findViewById(R.id.searchViewLayoutUserMessage);
         viewHeader = navigationView.getHeaderView(0);
         flbtnNewMessage = findViewById(R.id.flbtnNewMessage);
-
         imgUserAvatar = viewHeader.findViewById(R.id.imgUserAvatar);
         tvNameOfUser = viewHeader.findViewById(R.id.tvNameOfUser);
         tvUserPhoneNumber = viewHeader.findViewById(R.id.tvUserPhoneNumber);
+        items = new ArrayList<>();
     }
 
     @Override
@@ -272,5 +281,100 @@ public class HomeScreenActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    public void getUserInformation() throws IOException {
+        FireStoreOpenConnection
+                .getInstance()
+                .getAccessToFireStore()
+                .collection(IInstanceDataBaseProvider.userCollection)
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User user = (User) documentSnapshot.toObject(User.class);
+                        //Can use Callback
+                        try {
+                            getConversation(user);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public void getConversation(User contactUser) throws IOException {
+        String contactUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FireStoreOpenConnection
+                .getInstance()
+                .getAccessToFireStore()
+                .collection(IInstanceDataBaseProvider.conversationCollection)
+                .whereArrayContains("participants", contactUserId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<Conversation> cs = queryDocumentSnapshots.toObjects(Conversation.class);
+                        if (cs != null) {
+                            for (int i = 0; i < cs.size(); i++) {
+                                Conversation conversation = cs.get(i);
+                                String connectedId = conversation.getParticipants().stream().filter(str -> !str.equals(contactUserId)).collect(Collectors.toList()).get(0);
+                                try {
+                                    FireStoreOpenConnection
+                                            .getInstance()
+                                            .getAccessToFireStore()
+                                            .collection(IInstanceDataBaseProvider.userCollection)
+                                            .document(connectedId)
+                                            .get()
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                    User connectedUser = documentSnapshot.toObject(User.class);
+                                                    Log.i("ConnectedUser", connectedUser.getUserFirstName());
+                                                    ConversationItem conversationItem = new ConversationItem(
+                                                            conversation.getConversationId(),
+                                                            contactUser,
+                                                            connectedUser,
+                                                            conversation.getMessages().get(conversation.getMessages().size() - 1)
+                                                    );
+                                                    //Update View
+                                                    items.add(conversationItem);
+                                                    recyclerConversation.getAdapter().notifyDataSetChanged();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            });
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void setUpToolBar() {
+        setSupportActionBar(toolbarHomeScreen);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_black_24);
+    }
+
+    public void setUpConversationListView() {
+        linearLayoutManager = new LinearLayoutManager(this);
+        ListConversationsAdapter adapter = new ListConversationsAdapter(this, items);
+        recyclerConversation.setLayoutManager(linearLayoutManager);
+        recyclerConversation.setAdapter(adapter);
     }
 }

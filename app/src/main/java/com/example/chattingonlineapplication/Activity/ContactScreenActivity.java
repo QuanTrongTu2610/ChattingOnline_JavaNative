@@ -1,5 +1,6 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -7,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +15,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.example.chattingonlineapplication.Adapter.ListContactAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.ContactDao;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
@@ -30,11 +29,11 @@ import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +49,7 @@ public class ContactScreenActivity extends AppCompatActivity {
     private LinearLayout layoutInviteFriends;
     private ProgressBar progressContactLoader;
     private SwipeRefreshLayout swipeRefresh;
+    private FloatingActionButton btnAddNewFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +87,13 @@ public class ContactScreenActivity extends AppCompatActivity {
 
             }
         });
+
+        btnAddNewFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent intent = new Intent()
+            }
+        });
     }
 
     private void refreshList() {
@@ -111,6 +118,7 @@ public class ContactScreenActivity extends AppCompatActivity {
         recyclerContacts = findViewById(R.id.recyclerContacts);
         progressContactLoader = findViewById(R.id.progressContactLoader);
         swipeRefresh = findViewById(R.id.swipeRefresh);
+        btnAddNewFriend = findViewById(R.id.btnAddNewFriend);
     }
 
     @Override
@@ -274,6 +282,13 @@ public class ContactScreenActivity extends AppCompatActivity {
                                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                             final List<Contact> contacts = queryDocumentSnapshots.toObjects(Contact.class);
                                             Log.i("Size", contacts.size() + " ");
+                                            if(contacts.size() == 0 ) {
+                                                try {
+                                                    updateContact();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
                                             for (int i = 0; i < contacts.size(); i++) {
                                                 final String userId = contacts.get(i).getConnectedUserId();
                                                 final String contactId = contacts.get(i).getContactId();
@@ -304,5 +319,7 @@ public class ContactScreenActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
 
 }

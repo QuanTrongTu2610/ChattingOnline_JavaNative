@@ -28,13 +28,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
-import java.net.ServerSocket;
 
 public class VerifyAuthCodeActivity extends AppCompatActivity {
 
     private EditText editTextOTP;
     private AlertDialog alertDialog;
-    private boolean isVerifiedSuccess = false;
     private String codeSent;
     private FirebaseAuth mAuth;
     private String phoneNumber;
@@ -69,6 +67,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                 if (editable.toString().trim().length() == 6) {
                     alertDialog = LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this);
                     alertDialog.show();
+                    editTextOTP.setEnabled(false);
                     verifySignInCode();
                 }
             }
@@ -136,6 +135,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                                             Intent intent = new Intent(VerifyAuthCodeActivity.this, HomeScreenActivity.class);
                                                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                             alertDialog.dismiss();
+                                                            editTextOTP.setEnabled(true);
                                                             startActivity(intent);
                                                         }
                                                     });

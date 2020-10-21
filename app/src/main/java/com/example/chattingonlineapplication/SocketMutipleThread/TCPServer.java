@@ -47,8 +47,8 @@ public class TCPServer {
     public void onDestroy() {
         if (serverSocket != null) {
             try {
-                serverSocket.close();
                 stop = true;
+                serverSocket.close();
                 socketServerThread.interrupt();
             } catch (Exception e) {
                 e.printStackTrace();

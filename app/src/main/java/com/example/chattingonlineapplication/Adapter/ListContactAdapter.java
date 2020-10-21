@@ -59,7 +59,6 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
                     intent.putExtra("USER_CONTACT", contactUser);
-                    intent.putExtra("CONTACT_ID", item.getContactId());
                     intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }

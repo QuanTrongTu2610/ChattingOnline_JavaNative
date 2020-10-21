@@ -2,6 +2,7 @@ package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IConversationListClickListener;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.Plugins.TimeConverter;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
@@ -44,18 +46,22 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConversationItem item = lstUserMessage.get(position);
-        User user2 = item.getUser2();
+        User connectedUser = item.getConnectedUser();
+        User contactUser = item.getContactUser();
         ViewHolder viewHolder = (ViewHolder) holder;
 
-        Picasso.get().load(user2.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
-        viewHolder.tvUserName.setText(user2.getUserFirstName() + " " + user2.getUserLastName());
-        viewHolder.tvUserTimeSending.setText(String.valueOf(new Date(item.getLastMessage().getMessageDateCreated())));
+        Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        viewHolder.tvUserName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
+        viewHolder.tvUserTimeSending.setText(String.valueOf(TimeConverter.getInstance().convertToGeneral(new Date(item.getLastMessage().getMessageDateCreated()))));
         viewHolder.tvUserCurrentMessage.setText(item.getLastMessage().getContent());
         viewHolder.setiConversationListClickListener(new IConversationListClickListener() {
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
                 if (!isLongClick) {
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
+                    intent.putExtra("USER_CONNECTED", connectedUser);
+                    intent.putExtra("USER_CONTACT", contactUser);
+                    intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }
             }
@@ -79,9 +85,9 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
                     String filter = charSequence.toString().toLowerCase().trim();
                     for (ConversationItem item : lstUserMessageClone) {
                         StringBuilder name = new StringBuilder();
-                        name.append(item.getUser2().getUserFirstName());
+                        name.append(item.getConnectedUser().getUserFirstName());
                         name.append(" ");
-                        name.append(item.getUser2().getUserLastName());
+                        name.append(item.getConnectedUser().getUserLastName());
                         if (name.toString().toLowerCase().trim().contains(filter)) {
                             filteredList.add(item);
                         }

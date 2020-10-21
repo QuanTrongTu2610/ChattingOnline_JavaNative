@@ -18,13 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Test.TestFireBase">
-        </activity>
         <activity
             android:name=".Activity.SignupBasicProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activity.ContactScreenActivity" />
-        <activity android:name=".Activity.ChattingScreenActivity"></activity>
+        <activity android:name=".Activity.ChattingScreenActivity" />
         <activity android:name=".Activity.UserProfileActivity" />
         <activity
             android:name=".Activity.VerifyAuthCodeActivity"

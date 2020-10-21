@@ -1,5 +1,6 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,33 +9,37 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.ConversationDao;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
+import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.squareup.picasso.Picasso;
-
-import java.nio.charset.Charset;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -57,21 +62,27 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private User connectedUser;
     private String contactId;
     private String conversationId;
+    private AlertDialog alertDialog;
+    private ConversationDao conversationDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting_screen);
-        reflection();
+        try {
+            reflection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //Get User Information
         try {
             contactUser = (User) getIntent().getSerializableExtra("USER_CONTACT");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
-            contactId = (String) getIntent().getStringExtra("CONTACT_ID");
             conversationId = (String) getIntent().getStringExtra("CONVERSATION_ID");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        createConversation();
 
         //CreateServer
         openServerAndClient();
@@ -81,6 +92,9 @@ public class ChattingScreenActivity extends AppCompatActivity {
 
         //Create Adapter
         setupRecyclerView();
+
+        //LoadingMessage
+        new LoadingMessageFromFireTore().execute();
 
         //Sending Message
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +165,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         reyclerviewListMessage.setAdapter(listMessageAdapter);
     }
 
-    private void reflection() {
+    private void reflection() throws IOException {
         toolbarMessaging = findViewById(R.id.toolbarMessaging);
         reyclerviewListMessage = findViewById(R.id.reyclerviewListMessage);
         imgReceiverAvatar = findViewById(R.id.imgReceiverAvatar);
@@ -162,6 +176,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         connectedUser = null;
         contactUser = null;
         listMessageItems = new ArrayList<>();
+        conversationDao = new ConversationDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
     }
 
     @Override
@@ -173,11 +188,17 @@ public class ChattingScreenActivity extends AppCompatActivity {
     //Create Server
     private void openServerAndClient() {
         try {
+            //Host Server
             tcpServer = new TCPServer(contactUser);
             tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
                 public void updateItem(final String message) {
                     //Update Message to Database: TODO
+                    try {
+                        addMessage(connectedUser, contactUser, message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -200,9 +221,13 @@ public class ChattingScreenActivity extends AppCompatActivity {
 
             tcpClient = new TCPClient(connectedUser);
             tcpClient.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
-                //Update Message to Database: TODO
                 @Override
                 public void updateItem(final String message) {
+                    try {
+                        addMessage(contactUser, connectedUser, message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -227,17 +252,9 @@ public class ChattingScreenActivity extends AppCompatActivity {
         }
     }
 
-    private String autoGenString() {
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        return new String(array, Charset.forName("UTF-8"));
-    }
-
-
-
     //ToDo
-    private void addMessage(User userSender, User userReceiver, String message) {
-        Message m = new Message(autoGenString(),
+    private void addMessage(User userSender, User userReceiver, String message) throws IOException {
+        Message m = new Message(autoGenId(IInstanceDataBaseProvider.messageCollection),
                 userSender.getUserId(),
                 userReceiver.getUserId(),
                 message,
@@ -246,9 +263,154 @@ public class ChattingScreenActivity extends AppCompatActivity {
         );
 
         try {
-            ConversationDao conversationDao = new ConversationDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+            FireStoreOpenConnection
+                    .getInstance()
+                    .getAccessToFireStore()
+                    .collection(IInstanceDataBaseProvider.conversationCollection)
+                    .document(conversationId)
+                    .update("messages", FieldValue.arrayUnion(m));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    //sortPaticipants
+    private ArrayList<String> sortString(ArrayList<String> a) {
+        ArrayList<String> arrayList = a;
+        for (int i = 0; i < arrayList.size() - 1; i++) {
+            for (int j = i + 1; j < arrayList.size(); j++) {
+                if (arrayList.get(i).compareTo(arrayList.get(j)) > 0) {
+                    String temp = arrayList.get(i);
+                    arrayList.remove(i);
+                    arrayList.add(i, arrayList.get(j));
+                    arrayList.remove(j);
+                    arrayList.add(j, temp);
+                }
+            }
+        }
+        return a;
+    }
+
+    private String autoGenId(String name) throws IOException {
+        return FireStoreOpenConnection.getInstance().getAccessToFireStore()
+                .collection(name)
+                .document()
+                .getId();
+    }
+
+    private void createConversation() {
+        alertDialog = LoadingDialog.getInstance().getDialog(this);
+        alertDialog.show();
+        try {
+            final Conversation conversation = new Conversation(
+                    conversationId,
+                    "Conversation",
+                    sortString(new ArrayList<String>(Arrays.asList(contactUser.getUserId(), connectedUser.getUserId()))),
+                    new ArrayList<Message>()
+            );
+
+            conversationDao
+                    .get(conversationId)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Conversation c = (Conversation) documentSnapshot.toObject(Conversation.class);
+                            if (c == null) {
+                                try {
+                                    conversationDao
+                                            .create(conversation)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                alertDialog.dismiss();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    })
+            ;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public class LoadingMessageFromFireTore extends AsyncTask<Void, Void, Void> {
+
+        private MessageItem messageItem;
+        private User userSender;
+        private User userReceiver;
+        private ArrayList<MessageItem> lstLoadDataBase;
+
+        public LoadingMessageFromFireTore() {
+            lstLoadDataBase = new ArrayList<>();
+        }
+
+        @Override
+
+        protected Void doInBackground(Void... voids) {
+            try {
+                conversationDao
+                        .get(conversationId)
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        })
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Conversation conversation = documentSnapshot.toObject(Conversation.class);
+                                ArrayList<Message> lst = conversation.getMessages();
+                                for (Message m : lst) {
+                                    if (m.getUserSenderId().equals(contactUser.getUserId())) {
+                                        userSender = contactUser;
+                                        userReceiver = connectedUser;
+                                    } else {
+                                        userSender = connectedUser;
+                                        userReceiver = contactUser;
+                                    }
+
+                                    messageItem = new MessageItem(
+                                            m.getMessageId(),
+                                            userSender,
+                                            userReceiver,
+                                            m.getContent(),
+                                            m.getMessageDateCreated(),
+                                            m.getMessageSeenAt(),
+                                            conversation.getConversationId()
+                                    );
+                                    lstLoadDataBase.add(messageItem);
+                                }
+
+                                //Cache Current Array
+                                ArrayList<MessageItem> cache = new ArrayList<>(listMessageItems);
+                                listMessageItems.removeAll(listMessageItems);
+                                listMessageItems.addAll(lstLoadDataBase);
+                                listMessageItems.addAll(cache);
+                                reyclerviewListMessage.getAdapter().notifyDataSetChanged();
+                            }
+                        });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 }

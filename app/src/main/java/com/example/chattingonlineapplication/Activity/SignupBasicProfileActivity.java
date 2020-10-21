@@ -10,45 +10,29 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.CompressImage;
-import com.example.chattingonlineapplication.Plugins.InstanceProvider;
 import com.example.chattingonlineapplication.Plugins.Interface.ICompressImageFirebase;
 import com.example.chattingonlineapplication.Plugins.LoadingDialog;
 import com.example.chattingonlineapplication.R;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 import de.hdodenhof.circleimageview.CircleImageView;

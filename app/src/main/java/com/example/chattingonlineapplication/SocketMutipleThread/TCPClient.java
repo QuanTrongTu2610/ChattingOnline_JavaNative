@@ -1,16 +1,8 @@
 package com.example.chattingonlineapplication.SocketMutipleThread;
 
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.EditText;
-
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
-
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -45,7 +37,6 @@ public class TCPClient {
         }
     }
 
-
     //Thread Sending Message---------------------------------------------------------------------------
     public class SendingMessage extends Thread {
         private String message;
@@ -56,7 +47,8 @@ public class TCPClient {
         public void run() {
             super.run();
             try {
-                socket = new Socket(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+//                socket = new Socket(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+                socket = new Socket("172.20.10.4", 8000);
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter printWriter = new PrintWriter(outputStream);
                 printWriter.println(message);

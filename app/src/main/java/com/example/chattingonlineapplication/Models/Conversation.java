@@ -8,11 +8,11 @@ public class Conversation {
     private String conversationId;
     private String conversationTitle;
     private ArrayList<String> participants;
-    private Map<String,Message> messages;
+    private ArrayList<Message> messages;
 
     public Conversation() {}
 
-    public Conversation(String conversationId, String conversationTitle, ArrayList<String> participants, Map<String, Message> messages) {
+    public Conversation(String conversationId, String conversationTitle, ArrayList<String> participants, ArrayList<Message> messages) {
         this.conversationId = conversationId;
         this.conversationTitle = conversationTitle;
         this.participants = participants;
@@ -43,11 +43,11 @@ public class Conversation {
         this.participants = participants;
     }
 
-    public Map<String, Message> getMessages() {
+    public ArrayList<Message> getMessages() {
         return messages;
     }
 
-    public void setMessages(Map<String, Message> messages) {
+    public void setMessages(ArrayList<Message> messages) {
         this.messages = messages;
     }
 }
