@@ -19,7 +19,6 @@ import java.io.IOException;
 public class CompressImage {
     private ByteArrayOutputStream byteArrayOutputStream;
     private static CompressImage instance;
-    private String FOLDER_PATH = "profileImages";
 
     private CompressImage() {
         byteArrayOutputStream = new ByteArrayOutputStream();
@@ -32,13 +31,13 @@ public class CompressImage {
         return instance;
     }
 
-    public void compressImageToFireBase(String userId, Bitmap img, final ICompressImageFirebase<Uri> icompressImageFirebase) {
+    public void compressImageToFireBase(String id, Bitmap img,String folderName,  final ICompressImageFirebase<Uri> icompressImageFirebase) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         img.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         final StorageReference reference = FirebaseStorage.getInstance()
                 .getReference()
-                .child(FOLDER_PATH)
-                .child(userId + ".jpeg");
+                .child(folderName)
+                .child(id + ".jpeg");
 
         reference.putBytes(byteArrayOutputStream.toByteArray())
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {

@@ -1,9 +1,11 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -36,6 +38,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.squareup.picasso.Picasso;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +65,6 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private List<MessageItem> listMessageItems;
     private User contactUser;
     private User connectedUser;
-    private String contactId;
     private String conversationId;
     private AlertDialog alertDialog;
     private ConversationDao conversationDao;
@@ -78,13 +82,16 @@ public class ChattingScreenActivity extends AppCompatActivity {
         try {
             contactUser = (User) getIntent().getSerializableExtra("USER_CONTACT");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
-            conversationId = (String) getIntent().getStringExtra("CONVERSATION_ID");
+            conversationId = getIntent().getStringExtra("CONVERSATION_ID");
+            Log.i("ConnectedUser", connectedUser.getUserFirstName());
+            Log.i("ContactUser", contactUser.getUserFirstName());
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         createConversation();
 
-        //CreateServer
+        //CreateServerAndClient
         openServerAndClient();
 
         //Initialize ToolBar
@@ -94,40 +101,23 @@ public class ChattingScreenActivity extends AppCompatActivity {
         setupRecyclerView();
 
         //LoadingMessage
-        new LoadingMessageFromFireTore().execute();
+        new LoadingMessageFromFireStore().execute();
 
         //Sending Message
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tcpClient.sendingMessage(edittext_chatbox.getText().toString().trim());
+                if (!edittext_chatbox.getText().toString().trim().isEmpty()) {
+                    tcpClient.sendingMessage(edittext_chatbox.getText().toString().trim());
+                }
             }
         });
-
 
         //EditText event scroll to new message
         edittext_chatbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reyclerviewListMessage.scrollToPosition(0);
-            }
-        });
-
-        //EditText event all to open send button
-        edittext_chatbox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                button_chatbox_send.setClickable(!editable.toString().trim().isEmpty());
             }
         });
     }
@@ -147,7 +137,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (tcpClient != null) tcpClient.onDestroy();
-                if (tcpClient != null) tcpServer.onDestroy();
+                if (tcpServer != null) tcpServer.onDestroy();
                 finish();
             }
         });
@@ -192,13 +182,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
             tcpServer = new TCPServer(contactUser);
             tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
-                public void updateItem(final String message) {
-                    //Update Message to Database: TODO
-                    try {
-                        addMessage(connectedUser, contactUser, message);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                public void updateItem(User user, final String message) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -219,10 +203,11 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 }
             });
 
+            //Client
             tcpClient = new TCPClient(connectedUser);
             tcpClient.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
-                public void updateItem(final String message) {
+                public void updateItem(User user, final String message) {
                     try {
                         addMessage(contactUser, connectedUser, message);
                     } catch (Exception e) {
@@ -276,19 +261,18 @@ public class ChattingScreenActivity extends AppCompatActivity {
 
     //sortPaticipants
     private ArrayList<String> sortString(ArrayList<String> a) {
-        ArrayList<String> arrayList = a;
-        for (int i = 0; i < arrayList.size() - 1; i++) {
-            for (int j = i + 1; j < arrayList.size(); j++) {
+        ArrayList<String> arrayList = new ArrayList<>(a);
+        Log.i("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", arrayList.size() + "");
+        for (int i = 0; i < arrayList.size(); i++) {
+            for (int j = 1 ; j < arrayList.size(); j++) {
                 if (arrayList.get(i).compareTo(arrayList.get(j)) > 0) {
-                    String temp = arrayList.get(i);
-                    arrayList.remove(i);
-                    arrayList.add(i, arrayList.get(j));
-                    arrayList.remove(j);
-                    arrayList.add(j, temp);
+                    String temp = arrayList.get(j -1);
+                    arrayList.set(j-1, arrayList.get(j));
+                    arrayList.set(j, temp);
                 }
             }
         }
-        return a;
+        return arrayList;
     }
 
     private String autoGenId(String name) throws IOException {
@@ -302,7 +286,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         alertDialog = LoadingDialog.getInstance().getDialog(this);
         alertDialog.show();
         try {
-            final Conversation conversation = new Conversation(
+             Conversation conversation = new Conversation(
                     conversationId,
                     "Conversation",
                     sortString(new ArrayList<String>(Arrays.asList(contactUser.getUserId(), connectedUser.getUserId()))),
@@ -324,12 +308,13 @@ public class ChattingScreenActivity extends AppCompatActivity {
                                                 public void onSuccess(Void aVoid) {
                                                     alertDialog.dismiss();
                                                 }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -341,7 +326,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
+                            alertDialog.dismiss();
                         }
                     })
             ;
@@ -350,14 +335,56 @@ public class ChattingScreenActivity extends AppCompatActivity {
         }
     }
 
-    public class LoadingMessageFromFireTore extends AsyncTask<Void, Void, Void> {
+    public class CheckingServerReachable extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+                SocketAddress address = new InetSocketAddress("192.168.137.233", 8000);
+                Socket socket = new Socket();
+                socket.connect(address, 3000);
+                while (true) {
+                    if (socket.getInetAddress().isReachable(2000)) {
+                        if (alertDialog.isShowing()) {
+                            Log.i("Chạy vào", "aa");
+                            alertDialog.dismiss();
+                        }
+                        Log.i("Chạy vào", "aa2");
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                alertDialog.dismiss();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AlertDialog.Builder(ChattingScreenActivity.this)
+                                .setCancelable(false)
+                                .setTitle("Your contact")
+                                .setMessage("The client is out of server")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                        finish();
+                                    }
+                                }).show();
+                    }
+                });
+            }
+            return null;
+        }
+    }
+
+    public class LoadingMessageFromFireStore extends AsyncTask<Void, Void, Void> {
 
         private MessageItem messageItem;
         private User userSender;
         private User userReceiver;
         private ArrayList<MessageItem> lstLoadDataBase;
 
-        public LoadingMessageFromFireTore() {
+        public LoadingMessageFromFireStore() {
             lstLoadDataBase = new ArrayList<>();
         }
 
@@ -377,34 +404,37 @@ public class ChattingScreenActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 Conversation conversation = documentSnapshot.toObject(Conversation.class);
-                                ArrayList<Message> lst = conversation.getMessages();
-                                for (Message m : lst) {
-                                    if (m.getUserSenderId().equals(contactUser.getUserId())) {
-                                        userSender = contactUser;
-                                        userReceiver = connectedUser;
-                                    } else {
-                                        userSender = connectedUser;
-                                        userReceiver = contactUser;
+                                if (conversation != null) {
+                                    ArrayList<Message> lst = conversation.getMessages();
+                                    for (Message m : lst) {
+                                        if (m.getUserSenderId().equals(contactUser.getUserId())) {
+                                            userSender = contactUser;
+                                            userReceiver = connectedUser;
+                                        } else {
+                                            userSender = connectedUser;
+                                            userReceiver = contactUser;
+                                        }
+
+                                        messageItem = new MessageItem(
+                                                m.getMessageId(),
+                                                userSender,
+                                                userReceiver,
+                                                m.getContent(),
+                                                m.getMessageDateCreated(),
+                                                m.getMessageSeenAt(),
+                                                conversation.getConversationId()
+                                        );
+                                        lstLoadDataBase.add(messageItem);
                                     }
 
-                                    messageItem = new MessageItem(
-                                            m.getMessageId(),
-                                            userSender,
-                                            userReceiver,
-                                            m.getContent(),
-                                            m.getMessageDateCreated(),
-                                            m.getMessageSeenAt(),
-                                            conversation.getConversationId()
-                                    );
-                                    lstLoadDataBase.add(messageItem);
+                                    //Cache Current Array
+                                    ArrayList<MessageItem> cache = new ArrayList<>(listMessageItems);
+                                    listMessageItems.removeAll(listMessageItems);
+                                    listMessageItems.addAll(lstLoadDataBase);
+                                    listMessageItems.addAll(cache);
+                                    reyclerviewListMessage.getAdapter().notifyDataSetChanged();
+                                    reyclerviewListMessage.scrollToPosition(reyclerviewListMessage.getAdapter().getItemCount() - 1);
                                 }
-
-                                //Cache Current Array
-                                ArrayList<MessageItem> cache = new ArrayList<>(listMessageItems);
-                                listMessageItems.removeAll(listMessageItems);
-                                listMessageItems.addAll(lstLoadDataBase);
-                                listMessageItems.addAll(cache);
-                                reyclerviewListMessage.getAdapter().notifyDataSetChanged();
                             }
                         });
             } catch (Exception e) {

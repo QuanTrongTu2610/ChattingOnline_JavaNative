@@ -15,12 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
@@ -31,6 +33,7 @@ import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.Timestamp;
@@ -59,13 +62,13 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbarRegisterInf);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
         toolbarRegisterInf.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
-
         edtFirstName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -106,7 +109,6 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
         imgUserAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -183,13 +185,27 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                     try {
                         WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                         final String ipAddress = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-                        final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
                         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                         final int port = generatePort();
-                        CompressImage.getInstance().compressImageToFireBase(uid, img, new ICompressImageFirebase<Uri>() {
-                            @Override
-                            public void compress(Uri uri) {
-                                try {
+                        if (img == null) {
+                            User user = new User(
+                                    uid,
+                                    userFirstName,
+                                    userLastName,
+                                    FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(),
+                                    "",
+                                    "none",
+                                    0,
+                                    new Timestamp(System.currentTimeMillis()).getTime(),
+                                    true,
+                                    ipAddress,
+                                    port
+                            );
+                            createUser(user);
+                        } else {
+                            CompressImage.getInstance().compressImageToFireBase(uid, img, "profileImages", new ICompressImageFirebase<Uri>() {
+                                @Override
+                                public void compress(Uri uri) {
                                     User user = new User(
                                             uid,
                                             userFirstName,
@@ -203,20 +219,10 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                                             ipAddress,
                                             port
                                     );
-                                    userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
-                                            Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    createUser(user);
                                 }
-                            }
-                        });
+                            });
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -229,10 +235,27 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         return true;
     }
 
-    public int generatePort() throws Exception {
+    private int generatePort() throws Exception {
         ServerSocket s = new ServerSocket(0);
         int port = s.getLocalPort();
         s.close();
         return port;
+    }
+
+    private void createUser(User user) {
+        try {
+            UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
+            userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
+                    Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

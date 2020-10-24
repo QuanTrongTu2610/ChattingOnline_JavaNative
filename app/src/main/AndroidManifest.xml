@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight"
         android:usesCleartextTraffic="true">
+        <activity android:name=".Activity.GroupChatScreenActivity"></activity>
+        <activity android:name=".Activity.RegisterGroupActivity" />
+        <activity android:name=".Activity.ChatRoomActivity" />
         <activity
             android:name=".Activity.SignupBasicProfileActivity"
             android:windowSoftInputMode="adjustResize" />

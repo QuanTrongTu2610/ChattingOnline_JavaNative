@@ -97,6 +97,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
+                            alertDialog.dismiss();
                             new AlertDialog.Builder(VerifyAuthCodeActivity.this)
                                     .setTitle("Chatting Online App")
                                     .setMessage("Invalid OTP code")
@@ -104,7 +105,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             dialogInterface.dismiss();
-                                            alertDialog.dismiss();
+                                            editTextOTP.setEnabled(true);
                                         }
                                     }).show();
                             ;

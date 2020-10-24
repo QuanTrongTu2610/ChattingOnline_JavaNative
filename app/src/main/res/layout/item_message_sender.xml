@@ -6,20 +6,29 @@
     android:layout_height="wrap_content"
     android:paddingTop="8dp">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/userAvatar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ava"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></de.hdodenhof.circleimageview.CircleImageView>
+
     <TextView
         android:id="@+id/tvSenderContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
         android:background="@drawable/custom_bubble_chatting_left"
         android:maxWidth="300dp"
         android:paddingLeft="15dp"
         android:paddingTop="8dp"
         android:paddingRight="15dp"
         android:paddingBottom="8dp"
-        android:layout_marginLeft="15dp"
         android:text="hi man, how are you?"
         android:textColor="@color/clBlack"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/userAvatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="46dp" />
 

@@ -1,11 +1,20 @@
 package com.example.chattingonlineapplication.SocketMutipleThread;
 
 import android.util.Log;
+
+import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
+import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class TCPClient {
     private User connectedUser;
@@ -40,15 +49,23 @@ public class TCPClient {
     //Thread Sending Message---------------------------------------------------------------------------
     public class SendingMessage extends Thread {
         private String message;
+
         public SendingMessage(String m) {
             this.message = m;
         }
+
         @Override
         public void run() {
             super.run();
             try {
-//                socket = new Socket(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-                socket = new Socket("172.20.10.4", 8000);
+//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+//                socket = new Socket();
+//                socket.connect(address, 4000);
+//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+                SocketAddress address = new InetSocketAddress("192.168.137.2", 8000);
+                socket = new Socket();
+                socket.connect(address, 3000);
+
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter printWriter = new PrintWriter(outputStream);
                 printWriter.println(message);
@@ -56,10 +73,22 @@ public class TCPClient {
                 outputStream.close();
                 socket.close();
                 if (iUpDateChatViewRecycler != null) {
-                    iUpDateChatViewRecycler.updateItem(message);
+                    FireStoreOpenConnection
+                            .getInstance()
+                            .getAccessToFireStore()
+                            .collection(IInstanceDataBaseProvider.userCollection)
+                            .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .get()
+                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot != null)  iUpDateChatViewRecycler.updateItem(documentSnapshot.toObject(User.class), message);
+                                }
+                            });
+
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+
             }
         }
     }

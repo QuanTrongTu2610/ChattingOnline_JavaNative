@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -27,6 +28,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
@@ -46,10 +48,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeScreenActivity extends AppCompatActivity {
@@ -80,11 +84,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         setUpToolBar();
         setUpConversationListView();
 
-        try {
-            getUserInformation();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         //Request Contact Permission
         requestContactPermission();
 
@@ -113,10 +112,12 @@ public class HomeScreenActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.itemNewGroup:
+                        Intent intentGroup = new Intent(HomeScreenActivity.this, ChatRoomActivity.class);
+                        startActivity(intentGroup);
                         break;
                     case R.id.itemContacts:
-                        Intent intent = new Intent(HomeScreenActivity.this, ContactScreenActivity.class);
-                        startActivity(intent);
+                        Intent intentContact = new Intent(HomeScreenActivity.this, ContactScreenActivity.class);
+                        startActivity(intentContact);
                         break;
                     case R.id.itemCalls:
                         break;
@@ -135,6 +136,9 @@ public class HomeScreenActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(items.size() > 0) {
+            items.removeAll(items);
+        }
         try {
             new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
                     .get(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -145,6 +149,11 @@ public class HomeScreenActivity extends AppCompatActivity {
                             Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
                             tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
                             tvUserPhoneNumber.setText(user.getUserPhoneNumber());
+                            try {
+                                getConversation(user);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
         } catch (Exception e) {
@@ -283,32 +292,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         }
     }
 
-    public void getUserInformation() throws IOException {
-        FireStoreOpenConnection
-                .getInstance()
-                .getAccessToFireStore()
-                .collection(IInstanceDataBaseProvider.userCollection)
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        User user = (User) documentSnapshot.toObject(User.class);
-                        //Can use Callback
-                        try {
-                            getConversation(user);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
 
     public void getConversation(User contactUser) throws IOException {
         String contactUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -325,38 +308,43 @@ public class HomeScreenActivity extends AppCompatActivity {
                         if (cs != null) {
                             for (int i = 0; i < cs.size(); i++) {
                                 Conversation conversation = cs.get(i);
-                                String connectedId = conversation.getParticipants().stream().filter(str -> !str.equals(contactUserId)).collect(Collectors.toList()).get(0);
-                                try {
-                                    FireStoreOpenConnection
-                                            .getInstance()
-                                            .getAccessToFireStore()
-                                            .collection(IInstanceDataBaseProvider.userCollection)
-                                            .document(connectedId)
-                                            .get()
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                    User connectedUser = documentSnapshot.toObject(User.class);
-                                                    Log.i("ConnectedUser", connectedUser.getUserFirstName());
-                                                    ConversationItem conversationItem = new ConversationItem(
-                                                            conversation.getConversationId(),
-                                                            contactUser,
-                                                            connectedUser,
-                                                            conversation.getMessages().get(conversation.getMessages().size() - 1)
-                                                    );
-                                                    //Update View
-                                                    items.add(conversationItem);
-                                                    recyclerConversation.getAdapter().notifyDataSetChanged();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                            });
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                if (conversation.getMessages().size() != 0) {
+                                    String connectedId = conversation.getParticipants()
+                                            .stream()
+                                            .filter(str -> !str.equals(contactUserId)).collect(Collectors.toList())
+                                            .get(0);
+                                    try {
+                                        FireStoreOpenConnection
+                                                .getInstance()
+                                                .getAccessToFireStore()
+                                                .collection(IInstanceDataBaseProvider.userCollection)
+                                                .document(connectedId)
+                                                .get()
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        User connectedUser = documentSnapshot.toObject(User.class);
+                                                        Log.i("ConnectedUser", connectedUser.getUserFirstName());
+                                                        ConversationItem conversationItem = new ConversationItem(
+                                                                conversation.getConversationId(),
+                                                                contactUser,
+                                                                connectedUser,
+                                                                conversation.getMessages().get(conversation.getMessages().size() - 1)
+                                                        );
+                                                        //Update View
+                                                        items.add(conversationItem);
+                                                        recyclerConversation.getAdapter().notifyDataSetChanged();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         }

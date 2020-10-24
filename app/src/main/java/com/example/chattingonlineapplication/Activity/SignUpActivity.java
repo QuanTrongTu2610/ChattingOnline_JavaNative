@@ -8,11 +8,13 @@ import android.text.Selection;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.example.chattingonlineapplication.Plugins.ProgressFloatingButton;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
@@ -20,6 +22,7 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 

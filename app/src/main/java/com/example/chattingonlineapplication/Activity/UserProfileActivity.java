@@ -201,7 +201,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void updateUserImage(Bitmap bitmap) {
         CompressImage
                 .getInstance().
-                compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, new ICompressImageFirebase<Uri>() {
+                compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap,"profileImages", new ICompressImageFirebase<Uri>() {
                     @Override
                     public void compress(Uri uri) throws IOException {
                         FireStoreOpenConnection
