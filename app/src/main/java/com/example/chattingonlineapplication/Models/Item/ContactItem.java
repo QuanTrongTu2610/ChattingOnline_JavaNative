@@ -4,13 +4,13 @@ import com.example.chattingonlineapplication.Models.User;
 
 public class ContactItem {
     private String contactId;
-    private User contactUser;
+    private User owner;
     private User connectedUser;
     private String conversationId;
 
-    public ContactItem(String contactId, User contactUser, User connectedUser, String conversationId) {
+    public ContactItem(String contactId, User owner, User connectedUser, String conversationId) {
         this.contactId = contactId;
-        this.contactUser = contactUser;
+        this.owner = owner;
         this.connectedUser = connectedUser;
         this.conversationId = conversationId;
     }
@@ -23,12 +23,12 @@ public class ContactItem {
         this.contactId = contactId;
     }
 
-    public User getContactUser() {
-        return contactUser;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setContactUser(User contactUser) {
-        this.contactUser = contactUser;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public User getConnectedUser() {

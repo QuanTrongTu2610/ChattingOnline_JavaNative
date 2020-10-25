@@ -48,7 +48,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +145,9 @@ public class HomeScreenActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             User user = documentSnapshot.toObject(User.class);
-                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            if(!user.getUserAvatarUrl().isEmpty()) {
+                                Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            }
                             tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
                             tvUserPhoneNumber.setText(user.getUserPhoneNumber());
                             try {
@@ -293,13 +294,13 @@ public class HomeScreenActivity extends AppCompatActivity {
     }
 
 
-    public void getConversation(User contactUser) throws IOException {
-        String contactUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void getConversation(User owner) throws IOException {
+        String ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FireStoreOpenConnection
                 .getInstance()
                 .getAccessToFireStore()
                 .collection(IInstanceDataBaseProvider.conversationCollection)
-                .whereArrayContains("participants", contactUserId)
+                .whereArrayContains("participants", ownerId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -311,7 +312,7 @@ public class HomeScreenActivity extends AppCompatActivity {
                                 if (conversation.getMessages().size() != 0) {
                                     String connectedId = conversation.getParticipants()
                                             .stream()
-                                            .filter(str -> !str.equals(contactUserId)).collect(Collectors.toList())
+                                            .filter(str -> !str.equals(ownerId)).collect(Collectors.toList())
                                             .get(0);
                                     try {
                                         FireStoreOpenConnection
@@ -327,7 +328,7 @@ public class HomeScreenActivity extends AppCompatActivity {
                                                         Log.i("ConnectedUser", connectedUser.getUserFirstName());
                                                         ConversationItem conversationItem = new ConversationItem(
                                                                 conversation.getConversationId(),
-                                                                contactUser,
+                                                                owner,
                                                                 connectedUser,
                                                                 conversation.getMessages().get(conversation.getMessages().size() - 1)
                                                         );

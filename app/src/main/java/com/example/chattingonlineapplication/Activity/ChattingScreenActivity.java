@@ -63,7 +63,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private TextView tvReceiverIsOnline;
     private ListMessageAdapter listMessageAdapter;
     private List<MessageItem> listMessageItems;
-    private User contactUser;
+    private User owner;
     private User connectedUser;
     private String conversationId;
     private AlertDialog alertDialog;
@@ -80,11 +80,11 @@ public class ChattingScreenActivity extends AppCompatActivity {
         }
         //Get User Information
         try {
-            contactUser = (User) getIntent().getSerializableExtra("USER_CONTACT");
+            owner = (User) getIntent().getSerializableExtra("USER_CONTACT");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
             conversationId = getIntent().getStringExtra("CONVERSATION_ID");
             Log.i("ConnectedUser", connectedUser.getUserFirstName());
-            Log.i("ContactUser", contactUser.getUserFirstName());
+            Log.i("owner", owner.getUserFirstName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,7 +124,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
 
     private void setupToolBar() {
         if (connectedUser != null) {
-            Picasso.get().load(connectedUser.getUserAvatarUrl()).into(imgReceiverAvatar);
+            if(!connectedUser.getUserAvatarUrl().isEmpty()) Picasso.get().load(connectedUser.getUserAvatarUrl()).into(imgReceiverAvatar);
             tvReceiverName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
             tvReceiverIsOnline.setText("User is online");
         }
@@ -164,7 +164,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         edittext_chatbox = findViewById(R.id.edittext_chatbox);
         tvReceiverIsOnline = findViewById(R.id.tvReceiverIsOnline);
         connectedUser = null;
-        contactUser = null;
+        owner = null;
         listMessageItems = new ArrayList<>();
         conversationDao = new ConversationDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
     }
@@ -179,7 +179,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private void openServerAndClient() {
         try {
             //Host Server
-            tcpServer = new TCPServer(contactUser);
+            tcpServer = new TCPServer(owner);
             tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
                 public void updateItem(User user, final String message) {
@@ -189,7 +189,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
                             listMessageItems.add(
                                     new MessageItem("1",
                                             connectedUser,
-                                            contactUser,
+                                            owner,
                                             message,
                                             (new Timestamp(System.currentTimeMillis())).getTime(),
                                             0,
@@ -209,7 +209,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 @Override
                 public void updateItem(User user, final String message) {
                     try {
-                        addMessage(contactUser, connectedUser, message);
+                        addMessage(owner, connectedUser, message);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -218,7 +218,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
                         public void run() {
                             listMessageItems.add(
                                     new MessageItem("1",
-                                            contactUser,
+                                            owner,
                                             connectedUser,
                                             message,
                                             (new Timestamp(System.currentTimeMillis())).getTime(),
@@ -262,7 +262,6 @@ public class ChattingScreenActivity extends AppCompatActivity {
     //sortPaticipants
     private ArrayList<String> sortString(ArrayList<String> a) {
         ArrayList<String> arrayList = new ArrayList<>(a);
-        Log.i("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", arrayList.size() + "");
         for (int i = 0; i < arrayList.size(); i++) {
             for (int j = 1 ; j < arrayList.size(); j++) {
                 if (arrayList.get(i).compareTo(arrayList.get(j)) > 0) {
@@ -289,7 +288,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
              Conversation conversation = new Conversation(
                     conversationId,
                     "Conversation",
-                    sortString(new ArrayList<String>(Arrays.asList(contactUser.getUserId(), connectedUser.getUserId()))),
+                    sortString(new ArrayList<String>(Arrays.asList(owner.getUserId(), connectedUser.getUserId()))),
                     new ArrayList<Message>()
             );
 
@@ -407,12 +406,12 @@ public class ChattingScreenActivity extends AppCompatActivity {
                                 if (conversation != null) {
                                     ArrayList<Message> lst = conversation.getMessages();
                                     for (Message m : lst) {
-                                        if (m.getUserSenderId().equals(contactUser.getUserId())) {
-                                            userSender = contactUser;
+                                        if (m.getUserSenderId().equals(owner.getUserId())) {
+                                            userSender = owner;
                                             userReceiver = connectedUser;
                                         } else {
                                             userSender = connectedUser;
-                                            userReceiver = contactUser;
+                                            userReceiver = owner;
                                         }
 
                                         messageItem = new MessageItem(

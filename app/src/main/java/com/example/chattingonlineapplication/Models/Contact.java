@@ -1,19 +1,19 @@
 package com.example.chattingonlineapplication.Models;
 
+import java.util.ArrayList;
+
 public class Contact {
     private String contactId;
-    private String contactUserId;
-    private String connectedUserId;
     private String conversationId;
+    private ArrayList<String> participants;
 
     public Contact() {
     }
 
-    public Contact(String contactId, String contactUserId, String connectedUserId, String conversationId) {
+    public Contact(String contactId, String conversationId, ArrayList<String> participants) {
         this.contactId = contactId;
-        this.contactUserId = contactUserId;
-        this.connectedUserId = connectedUserId;
         this.conversationId = conversationId;
+        this.participants = participants;
     }
 
     public String getContactId() {
@@ -24,27 +24,19 @@ public class Contact {
         this.contactId = contactId;
     }
 
-    public String getContactUserId() {
-        return contactUserId;
-    }
-
-    public void setContactUserId(String contactUserId) {
-        this.contactUserId = contactUserId;
-    }
-
-    public String getConnectedUserId() {
-        return connectedUserId;
-    }
-
-    public void setConnectedUserId(String connectedUserId) {
-        this.connectedUserId = connectedUserId;
-    }
-
     public String getConversationId() {
         return conversationId;
     }
 
     public void setConversationId(String conversationId) {
         this.conversationId = conversationId;
+    }
+
+    public ArrayList<String> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(ArrayList<String> participants) {
+        this.participants = participants;
     }
 }

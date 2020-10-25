@@ -56,6 +56,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private ListMessageAdapter listMessageAdapter;
     private GroupChatItem groupChatItem;
+    private String currentMessage = new String();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         checkUserIsExist();
 
         //OpenSocketConnection
-        getContactUserInformation();
+        getownerInformation();
 
 
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
@@ -167,7 +168,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
 
 
     //Host Server to receive message
-    private void getContactUserInformation() {
+    private void getownerInformation() {
         ExecutorService e = Executors.newSingleThreadExecutor();
         e.execute(new Runnable() {
             @Override
@@ -182,8 +183,8 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                             .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    User contactUser = documentSnapshot.toObject(User.class);
-                                    openServer(contactUser);
+                                    User owner = documentSnapshot.toObject(User.class);
+                                    openServer(owner);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -199,27 +200,27 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         });
     }
 
-    private void openServer(User contactUser) {
+    //Host Server
+    private void openServer(User owner) {
         try {
             //Host Server
-            tcpServer = new TCPServer(contactUser);
+            tcpServer = new TCPServer(owner);
             tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
                 public void updateItem(User user, final String message) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.i("vào đây", "sdadada");
                             listMessageItems.add(
                                     new MessageItem("1",
                                             user,
-                                            contactUser,
+                                            owner,
                                             message,
                                             (new Timestamp(System.currentTimeMillis())).getTime(),
                                             0,
                                             "1")
                             );
-                            reyclerViewListMessage.getAdapter().notifyDataSetChanged();
+                            reyclerViewListMessage.getAdapter().notifyItemInserted(listMessageItems.size());
                             edittext_chatbox.setText("");
                             reyclerViewListMessage.scrollToPosition(reyclerViewListMessage.getAdapter().getItemCount() - 1);
                         }
@@ -240,15 +241,16 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MessageItem m = new MessageItem("1",
-                                user,
-                                new User(),
-                                message,
-                                (new Timestamp(System.currentTimeMillis())).getTime(),
-                                0,
-                                "1"
-                        );
-                        if (!listMessageItems.contains(m)) {
+                        if (!currentMessage.equals(message)) {
+                            MessageItem m = new MessageItem("1",
+                                    user,
+                                    new User(),
+                                    message,
+                                    (new Timestamp(System.currentTimeMillis())).getTime(),
+                                    0,
+                                    "1"
+                            );
+                            currentMessage = message;
                             listMessageItems.add(m);
                             reyclerViewListMessage.getAdapter().notifyDataSetChanged();
                             edittext_chatbox.setText("");

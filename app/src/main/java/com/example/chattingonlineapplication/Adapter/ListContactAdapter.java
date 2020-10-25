@@ -48,9 +48,9 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final ContactItem item = lstContact.get(position);
         final User connectedUser = item.getConnectedUser();
-        final User contactUser = item.getContactUser();
+        final User owner = item.getOwner();
         ViewHolder viewHolder = (ViewHolder) holder;
-        Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        if(!connectedUser.getUserAvatarUrl().isEmpty()) Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
         viewHolder.tvUserName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
         viewHolder.tvUserFriendPhoneNumber.setText(connectedUser.getUserPhoneNumber());
         viewHolder.setEventClickListener(new IContactListClickListener() {
@@ -59,7 +59,7 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
                 if (!isLongClick) {
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
-                    intent.putExtra("USER_CONTACT", contactUser);
+                    intent.putExtra("USER_CONTACT", owner);
                     intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }

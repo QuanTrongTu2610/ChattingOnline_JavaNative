@@ -58,13 +58,12 @@ public class TCPClient {
         public void run() {
             super.run();
             try {
-//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-//                socket = new Socket();
-//                socket.connect(address, 4000);
-//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-                SocketAddress address = new InetSocketAddress("192.168.137.2", 8000);
+                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
                 socket = new Socket();
-                socket.connect(address, 3000);
+                socket.connect(address, 4000);
+//                SocketAddress address = new InetSocketAddress("192.168.137.210", 8000);
+//                socket = new Socket();
+//                socket.connect(address, 3000);
 
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter printWriter = new PrintWriter(outputStream);
@@ -82,10 +81,10 @@ public class TCPClient {
                             .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if (documentSnapshot != null)  iUpDateChatViewRecycler.updateItem(documentSnapshot.toObject(User.class), message);
+                                    if (documentSnapshot != null)
+                                        iUpDateChatViewRecycler.updateItem(documentSnapshot.toObject(User.class), message);
                                 }
                             });
-
                 }
             } catch (Exception e) {
 

@@ -62,10 +62,12 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
 
             }
 
+            //Bug Here
             @Override
             public void afterTextChanged(Editable editable) {
                 if (editable.toString().trim().length() == 6) {
                     alertDialog = LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this);
+                    alertDialog.dismiss();
                     alertDialog.show();
                     editTextOTP.setEnabled(false);
                     verifySignInCode();

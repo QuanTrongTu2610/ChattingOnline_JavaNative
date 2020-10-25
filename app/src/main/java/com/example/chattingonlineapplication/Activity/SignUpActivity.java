@@ -237,7 +237,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
                                     startActivity(intent);
                                 }
-                            }, 3000);
+                            }, 2000);
                         }
                     }
             );

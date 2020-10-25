@@ -10,8 +10,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IConversationListClickListener;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
@@ -19,8 +21,10 @@ import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.TimeConverter;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.Date;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListConversationsAdapter extends RecyclerView.Adapter implements Filterable {
@@ -47,10 +51,10 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConversationItem item = lstUserMessage.get(position);
         User connectedUser = item.getConnectedUser();
-        User contactUser = item.getContactUser();
+        User owner = item.getOwner();
         ViewHolder viewHolder = (ViewHolder) holder;
-
-        Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
+        if (!connectedUser.getUserAvatarUrl().isEmpty())
+            Picasso.get().load(connectedUser.getUserAvatarUrl()).into(viewHolder.imgUserAvatar);
         viewHolder.tvUserName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
         viewHolder.tvUserTimeSending.setText(String.valueOf(TimeConverter.getInstance().convertToGeneral(new Date(item.getLastMessage().getMessageDateCreated()))));
         viewHolder.tvUserCurrentMessage.setText(item.getLastMessage().getContent());
@@ -60,7 +64,7 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
                 if (!isLongClick) {
                     Intent intent = new Intent(context, ChattingScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
-                    intent.putExtra("USER_CONTACT", contactUser);
+                    intent.putExtra("USER_CONTACT", owner);
                     intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }

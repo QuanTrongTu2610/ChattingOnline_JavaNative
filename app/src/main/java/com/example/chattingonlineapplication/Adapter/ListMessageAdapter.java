@@ -125,12 +125,14 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
         private TextView tvSenderContent;
         private TextView tvSenderMessageTime;
         private CircleImageView userAvatar;
+        public TextView tvUserSenderName;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
             this.tvSenderContent = itemView.findViewById(R.id.tvSenderContent);
             this.tvSenderMessageTime = itemView.findViewById(R.id.tvSenderMessageTime);
             this.userAvatar = itemView.findViewById(R.id.userAvatar);
+            this.tvUserSenderName = itemView.findViewById(R.id.tvUserSenderName);
         }
 
         public void bindingView(MessageItem m) {
@@ -138,12 +140,14 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
                 Picasso.get().load(m.getUserSender().getUserAvatarUrl()).into(userAvatar);
             tvSenderContent.setText(m.getContent());
             tvSenderMessageTime.setText(TimeConverter.getInstance().convertToMinutes(new Date(m.getMessageDateCreated())));
+            tvUserSenderName.setText(m.getUserSender().getUserFirstName() + " " + m.getUserSender().getUserLastName());
         }
 
         public void bindingViewWithoutImage(MessageItem m) {
             userAvatar.setVisibility(View.INVISIBLE);
             tvSenderContent.setText(m.getContent());
             tvSenderMessageTime.setText(TimeConverter.getInstance().convertToMinutes(new Date(m.getMessageDateCreated())));
+            tvUserSenderName.setVisibility(View.GONE);
         }
     }
 }

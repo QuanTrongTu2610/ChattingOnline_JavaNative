@@ -100,7 +100,9 @@ public class UserProfileActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             User user = documentSnapshot.toObject(User.class);
-                            Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            if (!user.getUserAvatarUrl().isEmpty()) {
+                                Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
+                            }
                             collapsingToolBar.setTitle(user.getUserFirstName() + " " + user.getUserLastName());
                             tvUserPhoneNumber.setText(user.getUserPhoneNumber());
                             tvUserBio.setText(user.getUserBio());
