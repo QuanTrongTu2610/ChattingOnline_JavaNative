@@ -1,5 +1,6 @@
 package com.example.chattingonlineapplication.Models.Item;
 
+import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
 
 public class MessageItem {
@@ -10,6 +11,8 @@ public class MessageItem {
     private long messageDateCreated;
     private long messageSeenAt;
     private String conversationId;
+
+    public MessageItem() {}
 
     public MessageItem(String messageId, User userSender, User userReceiver, String content, long messageDateCreated, long messageSeenAt, String conversationId) {
         this.messageId = messageId;

@@ -65,10 +65,7 @@
                         android:text="day of sending"
                         android:textSize="14sp"></TextView>
                 </LinearLayout>
-
-
             </LinearLayout>
-
             <TextView
                 android:id="@+id/tvUserCurrentMessage"
                 android:layout_width="match_parent"

@@ -285,7 +285,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         alertDialog = LoadingDialog.getInstance().getDialog(this);
         alertDialog.show();
         try {
-             Conversation conversation = new Conversation(
+            Conversation conversation = new Conversation(
                     conversationId,
                     "Conversation",
                     sortString(new ArrayList<String>(Arrays.asList(owner.getUserId(), connectedUser.getUserId()))),

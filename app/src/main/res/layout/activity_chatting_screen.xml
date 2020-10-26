@@ -99,7 +99,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="bottom"
-                android:background="@android:color/transparent"
+                android:background="@drawable/custom_btn_click_animation"
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/ic_baseline_send_24"
