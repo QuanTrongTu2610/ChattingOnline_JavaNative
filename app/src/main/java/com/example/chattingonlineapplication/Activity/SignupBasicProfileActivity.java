@@ -52,6 +52,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
     private EditText edtFirstName;
     private EditText edtLastName;
     private Toolbar toolbarRegisterInf;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,19 +143,25 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GALLERY_ACCESS) {
-            if (resultCode == RESULT_OK && isOpenCam) {
-                imgCamera.setVisibility(View.GONE);
-                img = (Bitmap) data.getExtras().get("data");
-                imgUserAvatar.setImageBitmap(img);
-            } else {
-                Uri image = data.getData();
-                try {
-                    imgCamera.setVisibility(View.GONE);
-                    img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
-                    imgUserAvatar.setImageBitmap(img);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (data != null) {
+            if (requestCode == GALLERY_ACCESS) {
+                if (resultCode == RESULT_OK && isOpenCam) {
+                    try {
+                        imgCamera.setVisibility(View.GONE);
+                        img = (Bitmap) data.getExtras().get("data");
+                        imgUserAvatar.setImageBitmap(img);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        Uri image = data.getData();
+                        imgCamera.setVisibility(View.GONE);
+                        img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                        imgUserAvatar.setImageBitmap(img);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -179,6 +186,8 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.doneItem:
+                alertDialog = LoadingDialog.getInstance().getDialog(this);
+                alertDialog.show();
                 final String userFirstName = edtFirstName.getText().toString().trim();
                 final String userLastName = edtLastName.getText().toString().trim();
                 if (!userFirstName.isEmpty() && !userLastName.isEmpty()) {
@@ -248,6 +257,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
             userDao.create(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
+                    alertDialog.dismiss();
                     LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
                     Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

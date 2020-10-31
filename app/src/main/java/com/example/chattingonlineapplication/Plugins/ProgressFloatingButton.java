@@ -30,4 +30,9 @@ public class ProgressFloatingButton {
         progressBarBtnVerification.setVisibility(View.GONE);
         imgBtnVerification.setImageResource(R.drawable.ic_baseline_done_24);
     }
+
+    public void buttonDefault() {
+        progressBarBtnVerification.setVisibility(View.GONE);
+        imgBtnVerification.setImageResource(R.drawable.ic_baseline_arrow_forward_24);
+    }
 }

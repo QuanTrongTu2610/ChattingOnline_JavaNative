@@ -1,13 +1,21 @@
 package com.example.chattingonlineapplication.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
+import com.example.chattingonlineapplication.BroadCast.UserParticipantReceiver;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.GroupChat;
@@ -24,11 +33,17 @@ import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
 import com.example.chattingonlineapplication.R;
+import com.example.chattingonlineapplication.Services.GroupParticipantService;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.squareup.picasso.Picasso;
@@ -36,6 +51,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,6 +59,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class GroupChatScreenActivity extends AppCompatActivity {
 
+    private static final String TAG = GroupChatScreenActivity.class.getSimpleName();
     private ArrayList<MessageItem> listMessageItems;
     private Toolbar toolbarGroupMessaging;
     private CircleImageView imgGroupAvatar;
@@ -57,6 +74,11 @@ public class GroupChatScreenActivity extends AppCompatActivity {
     private ListMessageAdapter listMessageAdapter;
     private GroupChatItem groupChatItem;
     private String currentMessage = new String();
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
+    private GroupParticipantService groupParticipantService;
+    private ServiceConnection serviceConnection;
+    private UserParticipantReceiver userParticipantReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,20 +94,22 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
-        //SetUpListView
+        // setUpListView
         setUpListMessageView();
 
-        //SetUpToolBar
+        // setUpToolBar
         setupToolBar();
 
-        //Check to add user to participants
+        // check and add user to participants
         checkUserIsExist();
 
-        //OpenSocketConnection
-        getownerInformation();
+        // openSocketConnection
+        getOwnerInformationBeforeHostServer();
 
+        // start notification-foreground service
+        startGroupChatService();
 
+        // send message
         button_chatbox_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,6 +144,36 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // register broadcast
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("UserAddNotification");
+        userParticipantReceiver = new UserParticipantReceiver();
+        LocalBroadcastManager.getInstance(GroupChatScreenActivity.this).registerReceiver(userParticipantReceiver, intentFilter);
+    }
+
+    private void startGroupChatService() {
+        // bind service
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                // call when service is connected
+                Log.i(TAG, "Group Service Connect");
+                groupParticipantService = ((GroupParticipantService.GroupParticipantBinder) service).getService();
+                groupParticipantService.realtimeDatabaseListener(GroupChatScreenActivity.this, groupChatItem);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                // call when service is stopped
+                Log.i(TAG, "Group Service Disconnected");
+            }
+        };
+
+        // call service
+        Intent intent = new Intent(GroupChatScreenActivity.this, GroupParticipantService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     private void sendMessage(String connectedUserId, String message) {
@@ -157,18 +211,22 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         edittext_chatbox = findViewById(R.id.edittext_chatbox);
         button_chatbox_send = findViewById(R.id.button_chatbox_send);
         listMessageItems = new ArrayList<>();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
     }
 
     private void setUpListMessageView() {
         linearLayoutManager = new LinearLayoutManager(this);
         listMessageAdapter = new ListMessageAdapter(this, listMessageItems, FirebaseAuth.getInstance().getCurrentUser());
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setSmoothScrollbarEnabled(true);
+        reyclerViewListMessage.setHasFixedSize(true);
         reyclerViewListMessage.setLayoutManager(linearLayoutManager);
         reyclerViewListMessage.setAdapter(listMessageAdapter);
     }
 
-
     //Host Server to receive message
-    private void getownerInformation() {
+    private void getOwnerInformationBeforeHostServer() {
         ExecutorService e = Executors.newSingleThreadExecutor();
         e.execute(new Runnable() {
             @Override
@@ -184,6 +242,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     User owner = documentSnapshot.toObject(User.class);
+                                    // open server to listen message.
                                     openServer(owner);
                                 }
                             })
@@ -200,7 +259,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         });
     }
 
-    //Host Server
+    // host server
     private void openServer(User owner) {
         try {
             //Host Server
@@ -232,7 +291,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         }
     }
 
-    //Open Client to send message
+    // open Client to send message
     private void openClient(User connectedUser, String message) {
         tcpClient = new TCPClient(connectedUser);
         tcpClient.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
@@ -263,39 +322,13 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         tcpClient.sendingMessage(message);
     }
 
-    //setupToolbar
+    // setupToolbar
     private void setupToolBar() {
         setSupportActionBar(toolbarGroupMessaging);
         toolbarGroupMessaging.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    if (tcpClient != null) tcpClient.onDestroy();
-                    if (tcpServer != null) tcpServer.onDestroy();
-                    //DeleteUserFromParticipants
-                    FireStoreOpenConnection
-                            .getInstance()
-                            .getAccessToFireStore()
-                            .collection(IInstanceDataBaseProvider.groupCollection)
-                            .document(groupChatItem.getGroupId())
-                            .update("participants", FieldValue.arrayRemove(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.i("GroupParticipants", "Delete Success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                    finish();
-                    //ShutDown server and client
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                finish();
             }
         });
         ActionBar a = getSupportActionBar();
@@ -307,6 +340,46 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         }
         tvGroupTitle.setText(groupChatItem.getTitle());
         tvGroupId.setText(groupChatItem.getGroupId());
+    }
+
+
+    private void shutDownScreen() {
+        if (tcpClient != null) tcpClient.onDestroy();
+        if (tcpServer != null) tcpServer.onDestroy();
+        //Delete from realtime database
+        deleteUserFromRealtimeDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
+    }
+
+    // delete User from Realtime database
+    private void deleteUserFromRealtimeDatabase(String userId) {
+        if (databaseReference != null) {
+            databaseReference
+                    .child("GroupChat")
+                    .child(groupChatItem.getGroupId())
+                    .child("participants")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .removeValue()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i(TAG, "DeleteRealTimeUser: " + "Success....");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+        }
+    }
+
+    //add User to Realtime database
+    private void addToRealtimeDatabase(String userId) {
+        //Add to Realtime
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+        databaseReference.child("GroupChat").child(groupChatItem.getGroupId()).child("participants").setValue(hashMap);
     }
 
     private void checkUserIsExist() {
@@ -325,6 +398,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                                 if (!g.getParticipants().contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                     //Add User To Participants
                                     addToParticipants(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                    addToRealtimeDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
                                 }
                             }
                         }
@@ -357,11 +431,49 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.i("GroupParticipants", "Add User Success");
+                            Log.i(TAG, "GroupParticipants: " + "Add User Success");
                         }
                     });
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            if (tcpClient != null) tcpClient.onDestroy();
+            if (tcpServer != null) tcpServer.onDestroy();
+            //DeleteUserFromParticipants
+            FireStoreOpenConnection
+                    .getInstance()
+                    .getAccessToFireStore()
+                    .collection(IInstanceDataBaseProvider.groupCollection)
+                    .document(groupChatItem.getGroupId())
+                    .update("participants", FieldValue.arrayRemove(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i(TAG, "GroupParticipants: " + "Delete Success");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // shut down
+        shutDownScreen();
+
+        // unbind service
+        unbindService(serviceConnection);
+
+        //unregister
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userParticipantReceiver);
     }
 }

@@ -33,6 +33,8 @@ import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +44,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class RegisterGroupActivity extends AppCompatActivity {
 
     private final static int GALLERY_ACCESS = 999;
-
     private boolean isOpenCam;
     private CircleImageView imgGroupAvatar;
     private EditText edtGroupTitle;
@@ -108,7 +109,6 @@ public class RegisterGroupActivity extends AppCompatActivity {
                 }
             }
         });
-
         imgGroupAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,23 +155,25 @@ public class RegisterGroupActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case GALLERY_ACCESS:
-                if (resultCode == RESULT_OK && isOpenCam) {
-                    imgCamera.setVisibility(View.GONE);
-                    img = (Bitmap) data.getExtras().get("data");
-                    imgGroupAvatar.setImageBitmap(img);
-                } else {
-                    Uri image = data.getData();
-                    try {
+        if (data != null) {
+            switch (requestCode) {
+                case GALLERY_ACCESS:
+                    if (resultCode == RESULT_OK && isOpenCam) {
                         imgCamera.setVisibility(View.GONE);
-                        img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                        img = (Bitmap) data.getExtras().get("data");
                         imgGroupAvatar.setImageBitmap(img);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } else {
+                        Uri image = data.getData();
+                        try {
+                            imgCamera.setVisibility(View.GONE);
+                            img = MediaStore.Images.Media.getBitmap(getContentResolver(), image);
+                            imgGroupAvatar.setImageBitmap(img);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
     }
 
@@ -229,7 +231,7 @@ public class RegisterGroupActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            finish();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -241,5 +243,29 @@ public class RegisterGroupActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        try {
+            addToRealtimeDatabase(groupChat);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //finish Activity
+        finish();
+    }
+
+    private void addToRealtimeDatabase(GroupChat groupChat) {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference();
+        databaseReference
+                .child("GroupChat")
+                .child(groupChat.getGroupId())
+                .setValue(groupChat)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i("UpdateRealTime", "Successfully.....");
+                    }
+                })
+        ;
     }
 }

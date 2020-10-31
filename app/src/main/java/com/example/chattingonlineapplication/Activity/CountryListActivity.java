@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 public class CountryListActivity extends AppCompatActivity {
 
+    private static final String TAG = CountryListActivity.class.getSimpleName();
     //normal variable
     private ListCountryAdapter listCountryAdapter;
     private ArrayList<CountryModel> lstCountry;

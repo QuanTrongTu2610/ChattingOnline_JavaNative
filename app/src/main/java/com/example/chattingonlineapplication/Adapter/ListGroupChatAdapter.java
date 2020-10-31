@@ -97,7 +97,7 @@ public class ListGroupChatAdapter extends RecyclerView.Adapter {
                 Picasso.get().load(item.getAvatarUrl()).into(imgGroupAvatar);
             }
             tvGroupTitle.setText(item.getTitle());
-            tvGroupId.setText(item.getGroupId());
+            tvGroupId.setText("Group Id: " + item.getGroupId());
             tvGroupAuthor.setText("Host by: " + item.getAuthor().getUserFirstName() + " " + item.getAuthor().getUserLastName());
         }
 

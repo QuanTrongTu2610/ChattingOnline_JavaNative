@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -177,7 +179,6 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
-
         constraintLayoutBtnVerification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -192,8 +193,6 @@ public class SignUpActivity extends AppCompatActivity {
         //nothing
         String userPhoneCode = autvPhoneCode.getText().toString().trim();
         String userPhoneNumber = autvPhoneNumber.getText().toString().trim();
-
-
         if (validatedPhoneCode(userPhoneCode) && validatedPhoneNumber(userPhoneNumber)) {
             String finalPhoneNumber = userPhoneCode + userPhoneNumber.replaceAll(" ", "");
             sendVerificationRequest(finalPhoneNumber);
@@ -211,33 +210,36 @@ public class SignUpActivity extends AppCompatActivity {
                     new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         @Override
                         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-//                            progressFloatingButton.buttonFinished();
-//                            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
-//                            intent.putExtra("CODE_BACK", codeSentBack);
-//                            startActivity(intent);
+                            progressFloatingButton.buttonFinished();
+                            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+                            intent.putExtra("CODE_BACK", codeSentBack);
+                            startActivity(intent);
                         }
 
                         @Override
                         public void onVerificationFailed(@NonNull FirebaseException e) {
                             e.printStackTrace();
+                            Toast.makeText(SignUpActivity.this, "Error !!", Toast.LENGTH_SHORT).show();
+                            progressFloatingButton.buttonDefault();
                         }
 
                         @Override
                         public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                             super.onCodeSent(s, forceResendingToken);
+                            Log.i("CodeSend", s);
                             codeSentBack = s;
                             mResendToken = forceResendingToken;
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressFloatingButton.buttonFinished();
-                                    Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
-                                    intent.putExtra("CODE_BACK", codeSentBack);
-                                    intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
-                                    startActivity(intent);
-                                }
-                            }, 2000);
+//                            Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    progressFloatingButton.buttonFinished();
+//                                    Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+//                                    intent.putExtra("CODE_BACK", codeSentBack);
+//                                    intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
+//                                    startActivity(intent);
+//                                }
+//                            }, 2000);
                         }
                     }
             );

@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -49,13 +51,14 @@ import java.util.stream.Collectors;
 
 public class ContactScreenActivity extends AppCompatActivity {
 
-    private List<ContactItem> contactItems = new ArrayList<>();
+
+    private static final String TAG = ContactScreenActivity.class.getSimpleName();
+    private List<ContactItem> contactItems;
     private RecyclerView recyclerContacts;
     private MaterialSearchView searchContactViewLayout;
     private Toolbar toolbarContact;
     private LinearLayout layoutAddNewContact;
     private ProgressBar progressContactLoader;
-    private SwipeRefreshLayout swipeRefresh;
     private FloatingActionButton btnAddNewFriend;
     private UserDao userDao;
     private ContactDao contactDao;
@@ -72,13 +75,12 @@ public class ContactScreenActivity extends AppCompatActivity {
         recyclerContacts.setAdapter(adapter);
         recyclerContacts.setLayoutManager(linearLayoutManager);
 
-        //Refresh
-        refreshList();
-
         //setup ToolBar
         setSupportActionBar(toolbarContact);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+
         toolbarContact.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,39 +98,22 @@ public class ContactScreenActivity extends AppCompatActivity {
             public void onClick(View v) {
             }
         });
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (contactItems.size() > 0) {
-            contactItems.removeAll(contactItems);
-        }
         initializeListContact();
     }
 
-    private void refreshList() {
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                try {
-
-                    swipeRefresh.setRefreshing(false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        swipeRefresh.setColorSchemeColors(getResources().getColor(R.color.clLightBlue, getTheme()));
-    }
-
     private void reflection() {
+        contactItems = new ArrayList<>();
         toolbarContact = findViewById(R.id.toolbarContact);
         layoutAddNewContact = findViewById(R.id.layoutAddNewContact);
         searchContactViewLayout = findViewById(R.id.searchContactViewLayout);
         recyclerContacts = findViewById(R.id.recyclerContacts);
         progressContactLoader = findViewById(R.id.progressContactLoader);
-        swipeRefresh = findViewById(R.id.swipeRefresh);
         btnAddNewFriend = findViewById(R.id.btnAddNewFriend);
     }
 
@@ -170,6 +155,10 @@ public class ContactScreenActivity extends AppCompatActivity {
 
     //initialize and load exist Contact
     private void initializeListContact() {
+        if (contactItems.size() > 0) {
+            contactItems.removeAll(contactItems);
+            recyclerContacts.getAdapter().notifyDataSetChanged();
+        }
         try {
             userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
             userDao.get(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -189,7 +178,6 @@ public class ContactScreenActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                             List<Contact> contacts = queryDocumentSnapshots.toObjects(Contact.class);
-                                            Log.i("ContactSize", contacts.size() + " ");
                                             //Contacts from cloud database
                                             if (contacts.size() > 0) {
                                                 for (int i = 0; i < contacts.size(); i++) {
@@ -228,11 +216,16 @@ public class ContactScreenActivity extends AppCompatActivity {
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
                                                         }
-
                                                     }
                                                 }
                                             }
                                             new UpdatingContactFromLocalToCloud().execute();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
                                         }
                                     });
                             return null;
@@ -243,14 +236,12 @@ public class ContactScreenActivity extends AppCompatActivity {
         }
     }
 
-
     //Check Contact in Local Contact
     //If it is not exist will create Contact
     private void updateContactFromLocal(User owner) {
         try {
             ContactSQLiteHelper c = new ContactSQLiteHelper(ContactScreenActivity.this);
             List<PhoneContact> fromContact = c.getAll();
-            Log.i("size", "fromContact" + fromContact.size());
             for (int i = 0; i < fromContact.size(); i++) {
                 PhoneContact p = fromContact.get(i);
                 FireStoreOpenConnection
@@ -264,7 +255,7 @@ public class ContactScreenActivity extends AppCompatActivity {
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.toObjects(User.class).size() > 0) {
                                     User connectedUser = queryDocumentSnapshots.toObjects(User.class).get(0);
-                                    Log.i("connectedUser", connectedUser.getUserFirstName());
+                                    Log.i(TAG, "connectedUser: " + connectedUser.getUserFirstName());
                                     checkIfContactExist(owner, connectedUser);
                                 }
                             }
@@ -310,7 +301,7 @@ public class ContactScreenActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.i("Contact:", "Create Contact Success");
+                            Log.i(TAG, "Contact: " + "Create Contact Success");
                             if (!contactItems.contains(contact)) {
                                 contactItems.add(new ContactItem(contact.getContactId(), owner, connectedUser, contact.getConversationId()));
                                 recyclerContacts.getAdapter().notifyItemInserted(contactItems.size());

@@ -67,7 +67,6 @@ public class ListMessageAdapter extends RecyclerView.Adapter {
                     if (position == 0) {
                         ((SenderViewHolder) holder).bindingView(item);
                     } else {
-                        Log.i("sadasd", item.getUserSender().getUserId().equals(lstMessage.get(position - 1).getUserSender().getUserId()) + "");
                         if (!item.getUserSender().getUserId().equals(lstMessage.get(position - 1).getUserSender().getUserId())) {
                             ((SenderViewHolder) holder).bindingView(item);
                         } else {

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
 import com.example.chattingonlineapplication.Adapter.ListGroupChatAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
@@ -18,11 +19,13 @@ import com.example.chattingonlineapplication.Models.GroupChat;
 import com.example.chattingonlineapplication.Models.Item.GroupChatItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
+import com.example.chattingonlineapplication.Services.GroupParticipantService;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.concurrent.Executors;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
+    private static final String TAG = ChatRoomActivity.class.getSimpleName();
     private ArrayList<GroupChatItem> lstGroupChatItem;
     private Toolbar toolbarChattingGroup;
     private RecyclerView recyclerGroup;
@@ -83,14 +87,13 @@ public class ChatRoomActivity extends AppCompatActivity {
         a.setDisplayHomeAsUpEnabled(true);
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        if(lstGroupChatItem.size() > 0) {
+        if (lstGroupChatItem.size() > 0) {
             lstGroupChatItem.removeAll(lstGroupChatItem);
             recyclerGroup.getAdapter().notifyDataSetChanged();
-            Log.i("Size", lstGroupChatItem.size() + "");
+            Log.i(TAG, "Group Size: " + lstGroupChatItem.size() + "");
         }
         try {
             FireStoreOpenConnection
@@ -102,7 +105,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                             List<GroupChat> list = queryDocumentSnapshots.toObjects(GroupChat.class);
-                            Log.i("GroupSize:", list.size() + "");
+                            Log.i(TAG, "GroupSize: " + list.size() + "");
 
                             if (list.size() > 0) {
                                 GroupChat groupChat;
@@ -124,6 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
+    // create group chat item and add it to list
     private void updateToListGroupItem(GroupChat g) {
         try {
             FireStoreOpenConnection
@@ -160,6 +164,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
+    // return list users who are involved in this conversation
     private ArrayList<User> updateParticipant(ArrayList<String> l) {
         ArrayList<User> u = new ArrayList<>();
         ExecutorService e = Executors.newSingleThreadExecutor();
@@ -189,5 +194,4 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
         return u;
     }
-
 }

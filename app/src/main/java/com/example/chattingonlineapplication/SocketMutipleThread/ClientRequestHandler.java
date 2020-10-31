@@ -54,7 +54,6 @@ class ClientRequestHandler extends Thread {
                         });
             }
             Log.i("Text", text);
-
             br.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -28,6 +29,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.chattingonlineapplication.Adapter.ListConversationsAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
@@ -48,15 +50,21 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeScreenActivity extends AppCompatActivity {
 
+    private static final String TAG = HomeScreenActivity.class.getSimpleName();
     private ArrayList<ConversationItem> items;
     private View viewHeader;
     private LinearLayoutManager linearLayoutManager;
@@ -79,6 +87,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
         reflection();
+
         //Setup tool bar
         setUpToolBar();
         setUpConversationListView();
@@ -86,6 +95,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         //Request Contact Permission
         requestContactPermission();
 
+        //Navigate to Contact Screen
         flbtnNewMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,7 +104,7 @@ public class HomeScreenActivity extends AppCompatActivity {
             }
         });
 
-
+        //Navigate to Manage Profile
         if (imgUserAvatar != null) {
             imgUserAvatar.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -135,8 +145,13 @@ public class HomeScreenActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(items.size() > 0) {
+        updateConversationToList();
+    }
+
+    private void updateConversationToList() {
+        if (items.size() > 0) {
             items.removeAll(items);
+            recyclerConversation.getAdapter().notifyDataSetChanged();
         }
         try {
             new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore())
@@ -145,7 +160,7 @@ public class HomeScreenActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             User user = documentSnapshot.toObject(User.class);
-                            if(!user.getUserAvatarUrl().isEmpty()) {
+                            if (!user.getUserAvatarUrl().isEmpty()) {
                                 Picasso.get().load(user.getUserAvatarUrl()).into(imgUserAvatar);
                             }
                             tvNameOfUser.setText(user.getUserFirstName() + " " + user.getUserLastName());
@@ -195,7 +210,6 @@ public class HomeScreenActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 return false;
             }
         });
@@ -236,6 +250,7 @@ public class HomeScreenActivity extends AppCompatActivity {
                             PERMISSION_READCONTACT);
                 }
             } else {
+                //When permission was granted
                 new ContactInitialize().execute();
             }
         } else {
@@ -255,6 +270,8 @@ public class HomeScreenActivity extends AppCompatActivity {
         }
     }
 
+
+    //Get Contact From Local phone
     class ContactInitialize extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -283,7 +300,7 @@ public class HomeScreenActivity extends AppCompatActivity {
 
                 String uPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
                 if (!finalMobile.toString().equalsIgnoreCase(uPhone)) {
-                    Log.i("phone", finalMobile.toString());
+                    Log.i(TAG, "phone: " + finalMobile.toString());
                     ph.setUserName(name);
                     ph.setPhoneNumber(finalMobile.toString());
                     c.add(ph);
@@ -325,7 +342,7 @@ public class HomeScreenActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                                         User connectedUser = documentSnapshot.toObject(User.class);
-                                                        Log.i("ConnectedUser", connectedUser.getUserFirstName());
+                                                        Log.i(TAG, "ConnectedUser: " + connectedUser.getUserFirstName());
                                                         ConversationItem conversationItem = new ConversationItem(
                                                                 conversation.getConversationId(),
                                                                 owner,

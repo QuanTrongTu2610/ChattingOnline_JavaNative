@@ -66,8 +66,6 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (editable.toString().trim().length() == 6) {
-                    alertDialog = LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this);
-                    alertDialog.dismiss();
                     alertDialog.show();
                     editTextOTP.setEnabled(false);
                     verifySignInCode();
@@ -91,6 +89,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        alertDialog = LoadingDialog.getInstance().getDialog(VerifyAuthCodeActivity.this);
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
@@ -115,7 +114,6 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                             try {
                                 final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                                 final UserDao userDao = new UserDao(FireStoreOpenConnection.getInstance().getAccessToFireStore());
-
                                 userDao.get(firebaseUser.getUid()).continueWith(new Continuation<DocumentSnapshot, Object>() {
                                     @Override
                                     public Object then(@NonNull Task<DocumentSnapshot> task) throws Exception {
@@ -135,10 +133,9 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
+                                                            alertDialog.dismiss();
                                                             Intent intent = new Intent(VerifyAuthCodeActivity.this, HomeScreenActivity.class);
                                                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                            alertDialog.dismiss();
-                                                            editTextOTP.setEnabled(true);
                                                             startActivity(intent);
                                                         }
                                                     });

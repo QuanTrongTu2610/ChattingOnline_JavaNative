@@ -58,19 +58,20 @@ public class TCPClient {
         public void run() {
             super.run();
             try {
-//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-//                socket = new Socket();
-//                socket.connect(address, 4000);
-                SocketAddress address = new InetSocketAddress("192.168.137.233", 8000);
+                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+                socket = new Socket();
+                socket.connect(address, 4000);
+//                SocketAddress address = new InetSocketAddress("192.168.137.27", 8000);
                 socket = new Socket();
                 socket.connect(address, 3000);
-
-                OutputStream outputStream = socket.getOutputStream();
-                PrintWriter printWriter = new PrintWriter(outputStream);
-                printWriter.println(message);
-                printWriter.flush();
-                outputStream.close();
-                socket.close();
+                if(!message.trim().isEmpty()) {
+                    OutputStream outputStream = socket.getOutputStream();
+                    PrintWriter printWriter = new PrintWriter(outputStream);
+                    printWriter.println(message);
+                    printWriter.flush();
+                    outputStream.close();
+                    socket.close();
+                }
                 if (iUpDateChatViewRecycler != null) {
                     FireStoreOpenConnection
                             .getInstance()
@@ -87,7 +88,7 @@ public class TCPClient {
                             });
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+
             }
         }
     }

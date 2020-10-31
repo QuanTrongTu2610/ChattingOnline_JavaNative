@@ -57,6 +57,7 @@ public class TCPServer {
                         if (connection != null && connection.isConnected()) {
                             new ClientRequestHandler(connection, iUpDateChatViewRecycler).start();
                         }
+
                     }
                 }
             } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.example.chattingonlineapplication.Activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.chattingonlineapplication.Adapter.ListSettingOptionsUserProfileAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
@@ -38,6 +41,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +60,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private TextView tvUserPhoneNumber;
     private TextView tvUserBio;
     private FloatingActionButton fabChangeAvatar;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +146,8 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void reflection() {
+        sharedPreferences = getSharedPreferences("IsLogin", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         toolBarUserProfile = findViewById(R.id.toolBarUserProfile);
         recyclerProfileUser = findViewById(R.id.recyclerProfileUser);
         appBarLayout = findViewById(R.id.app_bar);
@@ -162,6 +170,8 @@ public class UserProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.itemLogout:
+                editor.putBoolean("IsLogin", false);
+                editor.apply();
                 Intent intent = new Intent(UserProfileActivity.this, LauncherActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -203,7 +213,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void updateUserImage(Bitmap bitmap) {
         CompressImage
                 .getInstance().
-                compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap,"profileImages", new ICompressImageFirebase<Uri>() {
+                compressImageToFireBase(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, "profileImages", new ICompressImageFirebase<Uri>() {
                     @Override
                     public void compress(Uri uri) throws IOException {
                         FireStoreOpenConnection
