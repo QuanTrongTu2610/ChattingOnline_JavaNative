@@ -58,10 +58,8 @@ public class TCPClient {
         public void run() {
             super.run();
             try {
-                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
-                socket = new Socket();
-                socket.connect(address, 4000);
-//                SocketAddress address = new InetSocketAddress("192.168.137.27", 8000);
+//                SocketAddress address = new InetSocketAddress(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
+                SocketAddress address = new InetSocketAddress("192.168.137.144", 8000);
                 socket = new Socket();
                 socket.connect(address, 3000);
                 if(!message.trim().isEmpty()) {

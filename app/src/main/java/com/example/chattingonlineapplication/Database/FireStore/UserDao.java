@@ -18,22 +18,35 @@ public class UserDao implements IObjectDao<User> {
 
 
     public Task<QuerySnapshot> getAll() throws Exception {
-        return db.collection(IInstanceDataBaseProvider.userCollection).get();
+        return db
+                .collection(IInstanceDataBaseProvider.userCollection).get();
     }
 
     public Task<Void> create(User user) throws Exception {
-        return db.collection(IInstanceDataBaseProvider.userCollection).document(user.getUserId()).set(IConvertUserToHashMap.getInstance().convert(user));
+        return db
+                .collection(IInstanceDataBaseProvider.userCollection)
+                .document(user.getUserId()).
+                        set(IConvertUserToHashMap
+                                .getInstance().convert(user));
     }
 
     public Task<Void> delete(String id) throws Exception {
-        return db.collection(IInstanceDataBaseProvider.userCollection).document(id).delete();
+        return db
+                .collection(IInstanceDataBaseProvider.userCollection)
+                .document(id)
+                .delete();
     }
 
     public Task<Void> update(User user) throws Exception {
-        return db.collection(IInstanceDataBaseProvider.userCollection).document(user.getUserId()).update(IConvertUserToHashMap.getInstance().convert(user));
+        return db
+                .collection(IInstanceDataBaseProvider.userCollection)
+                .document(user.getUserId())
+                .update(IConvertUserToHashMap.getInstance().convert(user));
     }
 
     public Task<DocumentSnapshot> get(String id) throws Exception {
-        return db.collection(IInstanceDataBaseProvider.userCollection).document(id).get();
+        return db.collection(IInstanceDataBaseProvider.userCollection)
+                .document(id)
+                .get();
     }
 }

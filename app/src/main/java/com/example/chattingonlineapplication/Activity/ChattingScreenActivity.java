@@ -55,7 +55,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChattingScreenActivity extends AppCompatActivity {
 
-    private String TAG = "CLIENT ACTIVITY";
+    private static String TAG = ChattingScreenActivity.class.getSimpleName();
     private TCPServer tcpServer;
     private TCPClient tcpClient;
     private EditText edittext_chatbox;
@@ -73,7 +73,6 @@ public class ChattingScreenActivity extends AppCompatActivity {
     private String conversationId;
     private AlertDialog alertDialog;
     private ConversationDao conversationDao;
-
     private CheckingServerReachable checkingServerReachable;
     private LoadingMessageFromFireStore loadingMessageFromFireStore;
 
@@ -91,8 +90,8 @@ public class ChattingScreenActivity extends AppCompatActivity {
             owner = (User) getIntent().getSerializableExtra("USER_CONTACT");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
             conversationId = getIntent().getStringExtra("CONVERSATION_ID");
-            Log.i("ConnectedUser", connectedUser.getUserFirstName());
-            Log.i("owner", owner.getUserFirstName());
+            Log.i(TAG, "ConnectedUser: " + connectedUser.getUserFirstName());
+            Log.i(TAG, "owner: " + owner.getUserFirstName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,7 +145,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
             if (!connectedUser.getUserAvatarUrl().isEmpty())
                 Picasso.get().load(connectedUser.getUserAvatarUrl()).into(imgReceiverAvatar);
             tvReceiverName.setText(connectedUser.getUserFirstName() + " " + connectedUser.getUserLastName());
-            tvReceiverIsOnline.setText("User is online");
+            tvReceiverIsOnline.setText("Loading..........");
         }
         //Toolbar Customize
         setSupportActionBar(toolbarMessaging);
@@ -243,7 +242,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
                 @Override
                 public void updateItem(User user, String message) {
                     try {
-                        addMessage(owner, connectedUser, message);
+                        addMessageFirestore(owner, connectedUser, message);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -270,7 +269,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         }
     }
 
-    private void addMessage(User userSender, User userReceiver, String message) throws IOException {
+    private void addMessageFirestore(User userSender, User userReceiver, String message) throws IOException {
         Message m = new Message(autoGenId(IInstanceDataBaseProvider.messageCollection),
                 userSender.getUserId(),
                 userReceiver.getUserId(),

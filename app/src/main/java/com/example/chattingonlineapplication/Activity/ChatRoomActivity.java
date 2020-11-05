@@ -6,12 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
 import com.example.chattingonlineapplication.Adapter.ListGroupChatAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
@@ -19,13 +17,11 @@ import com.example.chattingonlineapplication.Models.GroupChat;
 import com.example.chattingonlineapplication.Models.Item.GroupChatItem;
 import com.example.chattingonlineapplication.Models.User;
 import com.example.chattingonlineapplication.R;
-import com.example.chattingonlineapplication.Services.GroupParticipantService;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
