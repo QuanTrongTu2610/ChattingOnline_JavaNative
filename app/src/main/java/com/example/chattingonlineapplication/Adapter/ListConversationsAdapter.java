@@ -2,7 +2,6 @@ package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,7 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.user_message_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.item_user_message, parent, false);
         return new ViewHolder(view);
     }
 

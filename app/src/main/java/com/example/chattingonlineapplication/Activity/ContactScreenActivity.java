@@ -1,5 +1,6 @@
 package com.example.chattingonlineapplication.Activity;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.chattingonlineapplication.Adapter.ListContactAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.ContactDao;
@@ -34,19 +34,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class ContactScreenActivity extends AppCompatActivity {
@@ -91,6 +85,8 @@ public class ContactScreenActivity extends AppCompatActivity {
         layoutAddNewContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(ContactScreenActivity.this, AddUserToContactScreenActivity.class);
+                startActivity(intent);
             }
         });
         btnAddNewFriend.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +94,6 @@ public class ContactScreenActivity extends AppCompatActivity {
             public void onClick(View v) {
             }
         });
-
     }
 
     @Override
@@ -136,7 +131,8 @@ public class ContactScreenActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+
+                return true;
             }
         });
     }

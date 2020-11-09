@@ -26,7 +26,7 @@ public class ListSettingOptionsUserProfileAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(context).inflate(R.layout.profile_setting_item, parent, false);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_profile_setting, parent, false);
         return new ViewHolder(itemView);
     }
 

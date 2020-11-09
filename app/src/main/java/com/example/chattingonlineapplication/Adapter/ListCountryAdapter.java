@@ -37,7 +37,7 @@ public class ListCountryAdapter extends RecyclerView.Adapter implements Filterab
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.country_code_items, parent, false);
+        View view = layoutInflater.inflate(R.layout.item_country_code, parent, false);
         return new ViewHolder(view);
     }
 
