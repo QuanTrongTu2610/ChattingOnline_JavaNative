@@ -1,6 +1,5 @@
-package com.example.chattingonlineapplication.Plugins;
+package com.example.chattingonlineapplication.Utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 

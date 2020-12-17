@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Plugins.Interface;
+package com.example.chattingonlineapplication.Utils.Interface;
 
 import java.io.IOException;
 

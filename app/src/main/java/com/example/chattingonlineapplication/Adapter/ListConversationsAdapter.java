@@ -13,11 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
+import com.example.chattingonlineapplication.Activity.SingleChatScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IConversationListClickListener;
 import com.example.chattingonlineapplication.Models.Item.ConversationItem;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.TimeConverter;
+import com.example.chattingonlineapplication.Utils.TimeConverter;
 import com.example.chattingonlineapplication.R;
 import com.squareup.picasso.Picasso;
 
@@ -61,9 +61,9 @@ public class ListConversationsAdapter extends RecyclerView.Adapter implements Fi
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
                 if (!isLongClick) {
-                    Intent intent = new Intent(context, ChattingScreenActivity.class);
+                    Intent intent = new Intent(context, SingleChatScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
-                    intent.putExtra("USER_CONTACT", owner);
+                    intent.putExtra("USER_OWNER", owner);
                     intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }

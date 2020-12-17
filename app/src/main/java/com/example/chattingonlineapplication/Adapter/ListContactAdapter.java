@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.chattingonlineapplication.Activity.ChattingScreenActivity;
+import com.example.chattingonlineapplication.Activity.SingleChatScreenActivity;
 import com.example.chattingonlineapplication.HandleEvent.IContactListClickListener;
 import com.example.chattingonlineapplication.Models.Item.ContactItem;
 import com.example.chattingonlineapplication.Models.User;
@@ -56,9 +56,9 @@ public class ListContactAdapter extends RecyclerView.Adapter implements Filterab
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
                 if (!isLongClick) {
-                    Intent intent = new Intent(context, ChattingScreenActivity.class);
+                    Intent intent = new Intent(context, SingleChatScreenActivity.class);
                     intent.putExtra("USER_CONNECTED", connectedUser);
-                    intent.putExtra("USER_CONTACT", owner);
+                    intent.putExtra("USER_OWNER", owner);
                     intent.putExtra("CONVERSATION_ID", item.getConversationId());
                     context.startActivity(intent);
                 }

@@ -1,7 +1,6 @@
 package com.example.chattingonlineapplication.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,9 +28,8 @@ import com.example.chattingonlineapplication.Database.FireStore.Interface.IInsta
 import com.example.chattingonlineapplication.Models.GroupChat;
 import com.example.chattingonlineapplication.Models.Item.GroupChatItem;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
-import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
+import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.Services.GroupParticipantService;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
@@ -39,9 +37,6 @@ import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -65,7 +60,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
     private CircleImageView imgGroupAvatar;
     private TextView tvGroupTitle;
     private TextView tvGroupId;
-    private RecyclerView reyclerViewListMessage;
+    private RecyclerView recyclerViewListMessage;
     private EditText edittext_chatbox;
     private ImageButton button_chatbox_send;
     private TCPServer tcpServer;
@@ -207,7 +202,7 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         imgGroupAvatar = findViewById(R.id.imgGroupAvatar);
         tvGroupTitle = findViewById(R.id.tvGroupTitle);
         tvGroupId = findViewById(R.id.tvGroupId);
-        reyclerViewListMessage = findViewById(R.id.reyclerViewListMessage);
+        recyclerViewListMessage = findViewById(R.id.recyclerViewListMessage);
         edittext_chatbox = findViewById(R.id.edittext_chatbox);
         button_chatbox_send = findViewById(R.id.button_chatbox_send);
         listMessageItems = new ArrayList<>();
@@ -220,9 +215,9 @@ public class GroupChatScreenActivity extends AppCompatActivity {
         listMessageAdapter = new ListMessageAdapter(this, listMessageItems, FirebaseAuth.getInstance().getCurrentUser());
         linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setSmoothScrollbarEnabled(true);
-        reyclerViewListMessage.setHasFixedSize(true);
-        reyclerViewListMessage.setLayoutManager(linearLayoutManager);
-        reyclerViewListMessage.setAdapter(listMessageAdapter);
+        recyclerViewListMessage.setHasFixedSize(true);
+        recyclerViewListMessage.setLayoutManager(linearLayoutManager);
+        recyclerViewListMessage.setAdapter(listMessageAdapter);
     }
 
     //Host Server to receive message
@@ -279,9 +274,9 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                                             0,
                                             "1")
                             );
-                            reyclerViewListMessage.getAdapter().notifyItemInserted(listMessageItems.size());
+                            recyclerViewListMessage.getAdapter().notifyItemInserted(listMessageItems.size());
                             edittext_chatbox.setText("");
-                            reyclerViewListMessage.scrollToPosition(reyclerViewListMessage.getAdapter().getItemCount() - 1);
+                            recyclerViewListMessage.scrollToPosition(recyclerViewListMessage.getAdapter().getItemCount() - 1);
                         }
                     });
                 }
@@ -311,9 +306,9 @@ public class GroupChatScreenActivity extends AppCompatActivity {
                             );
                             currentMessage = message;
                             listMessageItems.add(m);
-                            reyclerViewListMessage.getAdapter().notifyDataSetChanged();
+                            recyclerViewListMessage.getAdapter().notifyDataSetChanged();
                             edittext_chatbox.setText("");
-                            reyclerViewListMessage.scrollToPosition(reyclerViewListMessage.getAdapter().getItemCount() - 1);
+                            recyclerViewListMessage.scrollToPosition(recyclerViewListMessage.getAdapter().getItemCount() - 1);
                         }
                     }
                 });

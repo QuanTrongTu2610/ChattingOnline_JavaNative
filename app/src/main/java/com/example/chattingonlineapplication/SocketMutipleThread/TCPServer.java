@@ -3,7 +3,7 @@ package com.example.chattingonlineapplication.SocketMutipleThread;
 import android.util.Log;
 
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
+import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
 
 import java.net.ServerSocket;
 import java.net.Socket;

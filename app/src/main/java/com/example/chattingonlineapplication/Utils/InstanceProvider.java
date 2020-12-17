@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Plugins;
+package com.example.chattingonlineapplication.Utils;
 
 public class InstanceProvider {
     public static final String projectID = "chattingonlineapplication";

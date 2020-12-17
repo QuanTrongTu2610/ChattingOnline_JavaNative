@@ -1,11 +1,7 @@
 package com.example.chattingonlineapplication.Activity;
 
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -20,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.chattingonlineapplication.Adapter.ListMessageAdapter;
 import com.example.chattingonlineapplication.Database.FireStore.ConversationDao;
@@ -30,8 +25,8 @@ import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
-import com.example.chattingonlineapplication.Plugins.LoadingDialog;
+import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
+import com.example.chattingonlineapplication.Utils.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
 import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
@@ -53,9 +48,9 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ChattingScreenActivity extends AppCompatActivity {
+public class SingleChatScreenActivity extends AppCompatActivity {
 
-    private static String TAG = ChattingScreenActivity.class.getSimpleName();
+    private static String TAG = SingleChatScreenActivity.class.getSimpleName();
     private TCPServer tcpServer;
     private TCPClient tcpClient;
     private EditText edittext_chatbox;
@@ -87,7 +82,7 @@ public class ChattingScreenActivity extends AppCompatActivity {
         }
         //Get User Information
         try {
-            owner = (User) getIntent().getSerializableExtra("USER_CONTACT");
+            owner = (User) getIntent().getSerializableExtra("USER_OWNER");
             connectedUser = (User) getIntent().getSerializableExtra("USER_CONNECTED");
             conversationId = getIntent().getStringExtra("CONVERSATION_ID");
             Log.i(TAG, "ConnectedUser: " + connectedUser.getUserFirstName());

@@ -16,7 +16,7 @@ import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenCon
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.LoadingDialog;
+import com.example.chattingonlineapplication.Utils.LoadingDialog;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;

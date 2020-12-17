@@ -1,8 +1,7 @@
-package com.example.chattingonlineapplication.Plugins;
+package com.example.chattingonlineapplication.Utils;
 
 import com.example.chattingonlineapplication.Models.GroupChat;
-import com.example.chattingonlineapplication.Models.Item.GroupChatItem;
-import com.example.chattingonlineapplication.Plugins.Interface.IConvertObjectToHashMap;
+import com.example.chattingonlineapplication.Utils.Interface.IConvertObjectToHashMap;
 
 import java.util.HashMap;
 

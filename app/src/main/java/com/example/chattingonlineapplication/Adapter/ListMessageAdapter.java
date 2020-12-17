@@ -1,7 +1,6 @@
 package com.example.chattingonlineapplication.Adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
-import com.example.chattingonlineapplication.Models.Message;
-import com.example.chattingonlineapplication.Plugins.TimeConverter;
+import com.example.chattingonlineapplication.Utils.TimeConverter;
 import com.example.chattingonlineapplication.R;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 

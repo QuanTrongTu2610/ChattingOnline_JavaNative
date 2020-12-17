@@ -5,7 +5,7 @@ import android.util.Log;
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.Interface.IUpDateChatViewRecycler;
+import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-class ClientRequestHandler extends Thread {
+public class ClientRequestHandler extends Thread {
 
     private Socket socket;
     private IUpDateChatViewRecycler iUpDateChatViewRecycler;

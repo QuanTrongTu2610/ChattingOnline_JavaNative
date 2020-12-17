@@ -13,10 +13,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
-import com.example.chattingonlineapplication.Models.GroupChat;
 import com.example.chattingonlineapplication.Models.Item.GroupChatItem;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.InstanceProvider;
+import com.example.chattingonlineapplication.Utils.InstanceProvider;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;

@@ -29,8 +29,8 @@ import com.example.chattingonlineapplication.Database.FireStore.Interface.IInsta
 import com.example.chattingonlineapplication.Database.FireStore.UserDao;
 import com.example.chattingonlineapplication.Models.Item.SettingUserProfileItemModel;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.CompressImage;
-import com.example.chattingonlineapplication.Plugins.Interface.ICompressImageFirebase;
+import com.example.chattingonlineapplication.Utils.CompressImage;
+import com.example.chattingonlineapplication.Utils.Interface.ICompressImageFirebase;
 import com.example.chattingonlineapplication.R;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;

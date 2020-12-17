@@ -1,4 +1,4 @@
-package com.example.chattingonlineapplication.Plugins;
+package com.example.chattingonlineapplication.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

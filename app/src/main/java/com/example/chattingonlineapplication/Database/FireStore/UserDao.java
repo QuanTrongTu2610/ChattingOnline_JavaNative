@@ -3,7 +3,7 @@ package com.example.chattingonlineapplication.Database.FireStore;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IObjectDao;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.User;
-import com.example.chattingonlineapplication.Plugins.IConvertUserToHashMap;
+import com.example.chattingonlineapplication.Utils.IConvertUserToHashMap;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

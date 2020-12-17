@@ -1,12 +1,11 @@
-package com.example.chattingonlineapplication.Plugins;
+package com.example.chattingonlineapplication.Utils;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.chattingonlineapplication.Plugins.Interface.ICompressImageFirebase;
+import com.example.chattingonlineapplication.Utils.Interface.ICompressImageFirebase;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
