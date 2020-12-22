@@ -24,7 +24,7 @@
         <activity android:name=".Activity.RegisterGroupActivity" />
         <activity android:name=".Activity.ChatRoomActivity" />
         <activity
-            android:name=".Activity.SignupBasicProfileActivity"
+            android:name=".Activity.SignUpBasicProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activity.ContactScreenActivity" />
         <activity android:name=".Activity.SingleChatScreenActivity"></activity>

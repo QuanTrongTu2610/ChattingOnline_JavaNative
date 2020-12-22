@@ -40,7 +40,7 @@ import java.sql.Timestamp;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SignupBasicProfileActivity extends AppCompatActivity {
+public class SignUpBasicProfileActivity extends AppCompatActivity {
 
     private static final int GALLERY_ACCESS = 201;
 
@@ -113,7 +113,7 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
         imgUserAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AlertDialog.Builder(SignupBasicProfileActivity.this)
+                new AlertDialog.Builder(SignUpBasicProfileActivity.this)
                         .setTitle("Option Upload Image")
                         .setMessage("You can choose which source of image to upload")
                         .setPositiveButton("Taking a photo", new DialogInterface.OnClickListener() {
@@ -258,8 +258,8 @@ public class SignupBasicProfileActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     alertDialog.dismiss();
-                    LoadingDialog.getInstance().getDialog(SignupBasicProfileActivity.this).dismiss();
-                    Intent intent = new Intent(SignupBasicProfileActivity.this, HomeScreenActivity.class);
+                    LoadingDialog.getInstance().getDialog(SignUpBasicProfileActivity.this).dismiss();
+                    Intent intent = new Intent(SignUpBasicProfileActivity.this, HomeScreenActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }

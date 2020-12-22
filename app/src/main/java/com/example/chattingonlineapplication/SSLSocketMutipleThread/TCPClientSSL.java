@@ -1,20 +1,30 @@
 package com.example.chattingonlineapplication.SSLSocketMutipleThread;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.example.chattingonlineapplication.Database.FireStore.FireStoreOpenConnection;
 import com.example.chattingonlineapplication.Database.FireStore.Interface.IInstanceDataBaseProvider;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
 import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
 import com.example.chattingonlineapplication.Utils.SSL.SSLProvider;
+import com.example.chattingonlineapplication.Utils.SSL.TLSSocketFactory;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -33,27 +43,6 @@ public class TCPClientSSL {
         Log.i("Client Creating...", connectedUser.getUserIpAddress());
         this.connectedUser = connectedUser;
         this.context = context;
-        initClient();
-    }
-
-    private void initClient() {
-        try {
-            // loading from asset
-            SSLContext sslContext = SSLProvider
-                    .getSSLContextForCertificateFile(this.context, "client_finished", keystorepass);
-            // create SocketFactory
-            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-            sslsocket = (SSLSocket) sslSocketFactory
-                    .createSocket(
-                            new Socket(connectedUser.getUserIpAddress(), connectedUser.getUserPort()),
-                            connectedUser.getUserIpAddress(),
-                            connectedUser.getUserPort(),
-                            false);
-            sslsocket.startHandshake();
-            sslsocket.setSoTimeout(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void registerUpdateChatViewRecyclerEvent(IUpDateChatViewRecycler i) {
@@ -89,6 +78,11 @@ public class TCPClientSSL {
         public void run() {
             super.run();
             try {
+                SSLContext sslContext = SSLProvider
+                        .getSSLContextForCertificateFile(context, "mycert2.cer", "ConvertedSSLStore", "ConvertedTrustStore2", "123456789".toCharArray());
+                SSLSocketFactory sslSocketFactory = new TLSSocketFactory(sslContext);
+                SSLSocket sslsocket = (SSLSocket) sslSocketFactory
+                        .createSocket(connectedUser.getUserIpAddress(), connectedUser.getUserPort());
                 if (!message.trim().isEmpty()) {
                     OutputStream outputStream = sslsocket.getOutputStream();
                     PrintWriter printWriter = new PrintWriter(outputStream);

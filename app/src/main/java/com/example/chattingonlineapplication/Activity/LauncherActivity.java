@@ -22,6 +22,9 @@ import com.example.chattingonlineapplication.Webservice.Input.CountryInformation
 import com.example.chattingonlineapplication.Webservice.Model.CountryModel;
 import com.example.chattingonlineapplication.Webservice.Output.BaseOutput;
 import com.example.chattingonlineapplication.Webservice.Provider.ServiceProvider;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ import bolts.Task;
 
 public class LauncherActivity extends AppCompatActivity {
 
+    private final static String Tag = LauncherActivity.class.getSimpleName();
     private ProgressBar progressSignUp;
     private ArrayList<CountryModel> listCountry;
     private FirebaseAuth mAuth;
@@ -43,6 +47,15 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launcher);
         reflection();
+        try {
+            Log.i(Tag, "Install Provider Needed");
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

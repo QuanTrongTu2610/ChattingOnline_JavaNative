@@ -120,7 +120,7 @@ public class VerifyAuthCodeActivity extends AppCompatActivity {
                                         User user = task.getResult().toObject(User.class);
                                         if (user == null) {
                                             //Basic Infor
-                                            Intent intent = new Intent(VerifyAuthCodeActivity.this, SignupBasicProfileActivity.class);
+                                            Intent intent = new Intent(VerifyAuthCodeActivity.this, SignUpBasicProfileActivity.class);
                                             startActivity(intent);
                                         } else {
                                             //To the main Screen but should update the Ip address.

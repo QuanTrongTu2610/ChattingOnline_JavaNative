@@ -25,11 +25,13 @@ import com.example.chattingonlineapplication.Models.Conversation;
 import com.example.chattingonlineapplication.Models.Item.MessageItem;
 import com.example.chattingonlineapplication.Models.Message;
 import com.example.chattingonlineapplication.Models.User;
+import com.example.chattingonlineapplication.SSLSocketMutipleThread.TCPClientSSL;
+import com.example.chattingonlineapplication.SSLSocketMutipleThread.TCPServerSSL;
 import com.example.chattingonlineapplication.Utils.Interface.IUpDateChatViewRecycler;
 import com.example.chattingonlineapplication.Utils.LoadingDialog;
 import com.example.chattingonlineapplication.R;
-import com.example.chattingonlineapplication.SocketMutipleThread.TCPClient;
-import com.example.chattingonlineapplication.SocketMutipleThread.TCPServer;
+import com.example.chattingonlineapplication.Utils.SSL.SSLProvider;
+import com.example.chattingonlineapplication.Utils.SSL.TLSSocketFactory;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,13 +48,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SingleChatScreenActivity extends AppCompatActivity {
 
     private static String TAG = SingleChatScreenActivity.class.getSimpleName();
-    private TCPServer tcpServer;
-    private TCPClient tcpClient;
+    private TCPServerSSL tcpServer;
+    private TCPClientSSL tcpClient;
     private EditText edittext_chatbox;
     private ImageButton button_chatbox_send;
     private Toolbar toolbarMessaging;
@@ -70,6 +76,7 @@ public class SingleChatScreenActivity extends AppCompatActivity {
     private ConversationDao conversationDao;
     private CheckingServerReachable checkingServerReachable;
     private LoadingMessageFromFireStore loadingMessageFromFireStore;
+    private final static String Tag = SingleChatScreenActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +100,7 @@ public class SingleChatScreenActivity extends AppCompatActivity {
 
         createConversation();
 
-        //CreateServerAndClient
+//        CreateServerAndClient
         openServerAndClient();
 
         //Initialize ToolBar
@@ -125,7 +132,7 @@ public class SingleChatScreenActivity extends AppCompatActivity {
             }
         });
 
-        //CheckUserIsOnline
+        // CheckUserIsOnline
         checkingServerReachable = new CheckingServerReachable();
         checkingServerReachable.execute();
     }
@@ -204,11 +211,11 @@ public class SingleChatScreenActivity extends AppCompatActivity {
         return true;
     }
 
-    //Create Server
+    //Create Server and client
     private void openServerAndClient() {
         try {
-            //Host Server
-            tcpServer = new TCPServer(owner);
+//            //Host Server
+            tcpServer = new TCPServerSSL(owner, this);
             tcpServer.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
                 public void updateItem(User user, final String message) {
@@ -231,8 +238,8 @@ public class SingleChatScreenActivity extends AppCompatActivity {
                 }
             });
 
-            //Client
-            tcpClient = new TCPClient(connectedUser);
+//            Client
+            tcpClient = new TCPClientSSL(connectedUser, this);
             tcpClient.registerUpdateChatViewRecyclerEvent(new IUpDateChatViewRecycler() {
                 @Override
                 public void updateItem(User user, String message) {
@@ -360,7 +367,8 @@ public class SingleChatScreenActivity extends AppCompatActivity {
         }
     }
 
-    //Ping to Connected Client
+    // Ping to
+    // Connected Client
     class CheckingServerReachable extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
@@ -398,17 +406,18 @@ public class SingleChatScreenActivity extends AppCompatActivity {
     }
 
     private boolean isSocketAlive(String hostname, int port) {
-        boolean isAlive = false;
-        SocketAddress socketAddress = new InetSocketAddress(hostname, port);
-        Socket socket = new Socket();
         try {
-            socket.connect(socketAddress, 3000);
-            socket.close();
-            isAlive = true;
+            SSLContext sslContext = SSLProvider
+                    .getSSLContextForCertificateFile(this, "mycert2.cer", "ConvertedSSLStore", "ConvertedTrustStore2", "123456789".toCharArray());
+            SSLSocketFactory sslSocketFactory = new TLSSocketFactory(sslContext);
+            SSLSocket sslsocket = (SSLSocket) sslSocketFactory
+                    .createSocket(hostname, port);
+            sslsocket.close();
+            return true;
         } catch (Exception e) {
-
+            e.printStackTrace();
+            return false;
         }
-        return isAlive;
     }
 
     class LoadingMessageFromFireStore extends AsyncTask<Void, Void, Void> {

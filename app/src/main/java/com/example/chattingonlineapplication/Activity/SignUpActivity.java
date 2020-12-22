@@ -210,10 +210,10 @@ public class SignUpActivity extends AppCompatActivity {
                     new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         @Override
                         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-//                            progressFloatingButton.buttonFinished();
-//                            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
-//                            intent.putExtra("CODE_BACK", codeSentBack);
-//                            startActivity(intent);
+                            progressFloatingButton.buttonFinished();
+                            Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+                            intent.putExtra("CODE_BACK", codeSentBack);
+                            startActivity(intent);
                         }
 
                         @Override
@@ -229,17 +229,17 @@ public class SignUpActivity extends AppCompatActivity {
                             Log.i("CodeSend", s);
                             codeSentBack = s;
                             mResendToken = forceResendingToken;
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressFloatingButton.buttonFinished();
-                                    Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
-                                    intent.putExtra("CODE_BACK", codeSentBack);
-                                    intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
-                                    startActivity(intent);
-                                }
-                            }, 2000);
+//                            Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    progressFloatingButton.buttonFinished();
+//                                    Intent intent = new Intent(SignUpActivity.this, VerifyAuthCodeActivity.class);
+//                                    intent.putExtra("CODE_BACK", codeSentBack);
+//                                    intent.putExtra("PHONE_NUMBER", finalPhoneNumber);
+//                                    startActivity(intent);
+//                                }
+//                            }, 2000);
                         }
                     }
             );
